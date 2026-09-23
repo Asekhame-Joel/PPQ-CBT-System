@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -36,6 +38,36 @@ class User extends Authenticatable
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);
+    }
+
+    public function studentSetting(): HasOne
+    {
+        return $this->hasOne(StudentSetting::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function courseAccesses(): HasMany
+    {
+        return $this->hasMany(CourseAccess::class);
+    }
+
+    public function quizAttempts(): HasMany
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function questionReports(): HasMany
+    {
+        return $this->hasMany(QuestionReport::class);
+    }
+
+    public function resolvedQuestionReports(): HasMany
+    {
+        return $this->hasMany(QuestionReport::class, 'resolved_by');
     }
 
     /**
