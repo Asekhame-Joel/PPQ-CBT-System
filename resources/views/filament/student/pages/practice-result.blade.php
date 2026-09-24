@@ -105,6 +105,64 @@
                         <p class="mt-1 text-gray-600 dark:text-gray-400">{{ $question->explanation_snapshot }}</p>
                     </div>
                 @endif
+
+                <div class="mt-5 border-t border-gray-200 pt-4 dark:border-white/10">
+                    @if ($reportingQuestionId === $question->id)
+                        <div class="space-y-4">
+                            <div>
+                                <label for="report-reason-{{ $question->id }}" class="text-sm font-medium text-gray-950 dark:text-white">
+                                    What is wrong with this question?
+                                </label>
+                                <select
+                                    id="report-reason-{{ $question->id }}"
+                                    wire:model="reportReason"
+                                    class="mt-2 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                                >
+                                    @foreach (\App\Enums\QuestionReportReason::options() as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('reportReason')
+                                    <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="report-comment-{{ $question->id }}" class="text-sm font-medium text-gray-950 dark:text-white">
+                                    Explain the issue
+                                </label>
+                                <textarea
+                                    id="report-comment-{{ $question->id }}"
+                                    wire:model="reportComment"
+                                    rows="3"
+                                    maxlength="2000"
+                                    class="mt-2 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                                ></textarea>
+                                @error('reportComment')
+                                    <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="flex flex-wrap gap-3">
+                                <x-filament::button wire:click="submitReport" size="sm" icon="heroicon-o-paper-airplane">
+                                    Submit report
+                                </x-filament::button>
+                                <x-filament::button wire:click="cancelReport" size="sm" color="gray">
+                                    Cancel
+                                </x-filament::button>
+                            </div>
+                        </div>
+                    @else
+                        <x-filament::button
+                            wire:click="beginReport({{ $question->id }})"
+                            size="sm"
+                            color="gray"
+                            icon="heroicon-o-flag"
+                        >
+                            Report this question
+                        </x-filament::button>
+                    @endif
+                </div>
             </x-filament::section>
         @endforeach
     </div>

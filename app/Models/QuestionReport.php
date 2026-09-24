@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\QuestionReportReason;
 use App\Enums\QuestionReportStatus;
 use Database\Factories\QuestionReportFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'user_id',
     'question_id',
     'attempt_question_id',
+    'reason',
     'report_text',
     'status',
     'admin_notes',
@@ -55,6 +57,7 @@ class QuestionReport extends Model
     protected function casts(): array
     {
         return [
+            'reason' => QuestionReportReason::class,
             'status' => QuestionReportStatus::class,
             'resolved_at' => 'datetime',
         ];

@@ -72,6 +72,16 @@
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Courses you unlock will appear here when access is active.
                     </p>
+
+                    <div class="mt-4">
+                        <x-filament::button
+                            tag="a"
+                            href="{{ \App\Filament\Student\Pages\AvailableCourses::getUrl(panel: 'student') }}"
+                            icon="heroicon-o-book-open"
+                        >
+                            Browse available courses
+                        </x-filament::button>
+                    </div>
                 </x-filament::section>
             </div>
         @endforelse

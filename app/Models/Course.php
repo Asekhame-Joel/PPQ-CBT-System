@@ -67,6 +67,21 @@ class Course extends Model
         return $query->where('is_active', true);
     }
 
+    #[Scope]
+    protected function eligibleFor(Builder $query, User $student): Builder
+    {
+        if (! $student->level_id || ! $student->department_id) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query
+            ->where('level_id', $student->level_id)
+            ->where(fn (Builder $query): Builder => $query
+                ->whereDoesntHave('departments')
+                ->orWhereHas('departments', fn (Builder $query): Builder => $query
+                    ->whereKey($student->department_id)));
+    }
+
     protected function casts(): array
     {
         return [

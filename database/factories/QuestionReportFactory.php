@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\QuestionReportReason;
 use App\Enums\QuestionReportStatus;
 use App\Models\AttemptQuestion;
 use App\Models\QuestionReport;
@@ -24,6 +25,7 @@ class QuestionReportFactory extends Factory
             'user_id' => User::factory(),
             'question_id' => null,
             'attempt_question_id' => AttemptQuestion::factory(),
+            'reason' => QuestionReportReason::Other,
             'report_text' => fake()->sentence(),
             'status' => QuestionReportStatus::Pending,
             'admin_notes' => null,
