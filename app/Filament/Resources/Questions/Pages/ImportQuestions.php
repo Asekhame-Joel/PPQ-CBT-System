@@ -5,9 +5,11 @@ namespace App\Filament\Resources\Questions\Pages;
 use App\Filament\Resources\Questions\QuestionResource;
 use App\Models\Course;
 use App\QuestionImports\ParsedQuestion;
+use App\QuestionImports\QuestionDuplicateDetector;
 use App\QuestionImports\QuestionFileParser;
 use App\QuestionImports\QuestionImporter;
 use App\QuestionImports\QuestionImportResult;
+use App\QuestionImports\QuestionImportTemplate;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -16,6 +18,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ImportQuestions extends Page
 {
@@ -77,18 +80,31 @@ class ImportQuestions extends Page
             ->statePath('data');
     }
 
-    public function preview(QuestionFileParser $parser): void
+    public function preview(QuestionFileParser $parser, QuestionDuplicateDetector $duplicateDetector): void
     {
         $data = $this->form->getState();
-        $result = $this->parseUploadedFile($parser, $data['file']);
+        $course = Course::active()->findOrFail($data['course_id']);
+        $result = $this->withDuplicateErrors(
+            $this->parseUploadedFile($parser, $data['file']),
+            $course,
+            $duplicateDetector,
+        );
 
         $this->setPreview($result->questions, $result->errors);
     }
 
-    public function import(QuestionFileParser $parser, QuestionImporter $importer): void
-    {
+    public function import(
+        QuestionFileParser $parser,
+        QuestionImporter $importer,
+        QuestionDuplicateDetector $duplicateDetector,
+    ): void {
         $data = $this->form->getState();
-        $result = $this->parseUploadedFile($parser, $data['file']);
+        $course = Course::active()->findOrFail($data['course_id']);
+        $result = $this->withDuplicateErrors(
+            $this->parseUploadedFile($parser, $data['file']),
+            $course,
+            $duplicateDetector,
+        );
         $this->setPreview($result->questions, $result->errors);
 
         if (! $result->isValid() || $result->questions === []) {
@@ -100,7 +116,6 @@ class ImportQuestions extends Page
             return;
         }
 
-        $course = Course::active()->findOrFail($data['course_id']);
         $count = $importer->import($course, $result->questions);
 
         Notification::make()
@@ -111,6 +126,24 @@ class ImportQuestions extends Page
         $this->redirect(QuestionResource::getUrl('index'));
     }
 
+    public function downloadTextTemplate(QuestionImportTemplate $template): StreamedResponse
+    {
+        return response()->streamDownload(
+            static fn () => print $template->aikenText(),
+            'question-import-template.txt',
+            ['Content-Type' => 'text/plain; charset=UTF-8'],
+        );
+    }
+
+    public function downloadWordTemplate(QuestionImportTemplate $template): StreamedResponse
+    {
+        return response()->streamDownload(
+            static fn () => print $template->wordDocument(),
+            'question-import-template.docx',
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        );
+    }
+
     private function parseUploadedFile(QuestionFileParser $parser, mixed $file): QuestionImportResult
     {
         if (! $file instanceof UploadedFile) {
@@ -118,6 +151,21 @@ class ImportQuestions extends Page
         }
 
         return $parser->parse($file->getRealPath(), $file->getClientOriginalName());
+    }
+
+    private function withDuplicateErrors(
+        QuestionImportResult $result,
+        Course $course,
+        QuestionDuplicateDetector $duplicateDetector,
+    ): QuestionImportResult {
+        if ($result->questions === []) {
+            return $result;
+        }
+
+        return new QuestionImportResult(
+            $result->questions,
+            [...$result->errors, ...$duplicateDetector->errors($course, $result->questions)],
+        );
     }
 
     /**

@@ -1,4 +1,20 @@
 <x-filament-panels::page>
+    <x-filament::section
+        heading="Download a template"
+        description="Start with one of these examples and keep its question and answer structure."
+        icon="heroicon-o-document-arrow-down"
+    >
+        <div class="flex flex-wrap gap-3">
+            <x-filament::button wire:click="downloadTextTemplate" color="gray" icon="heroicon-o-document-text">
+                Aiken TXT template
+            </x-filament::button>
+
+            <x-filament::button wire:click="downloadWordTemplate" color="gray" icon="heroicon-o-document">
+                Word DOCX template
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
     <form wire:submit="preview" class="space-y-6">
         {{ $this->form }}
 
