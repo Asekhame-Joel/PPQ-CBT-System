@@ -6,6 +6,7 @@ use App\Filament\Student\Pages\PracticeSetup;
 use App\Models\Course;
 use App\Models\CourseAccess;
 use App\Models\Question;
+use App\Models\QuestionOption;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -85,6 +86,46 @@ class PracticeSetupTest extends TestCase
             ]);
 
         $this->assertDatabaseMissing('student_settings', ['user_id' => $student->id]);
+    }
+
+    public function test_start_practice_creates_an_attempt_and_redirects_to_the_session(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create([
+            'min_question_count' => 2,
+            'max_question_count' => 10,
+            'min_duration' => 10,
+            'max_duration' => 60,
+        ]);
+        CourseAccess::factory()->for($student)->for($course)->create();
+
+        Question::factory()->count(2)->for($course)->create()->each(function (Question $question): void {
+            QuestionOption::factory()->for($question)->create(['sort_order' => 1, 'is_correct' => false]);
+            QuestionOption::factory()->for($question)->create(['sort_order' => 2, 'is_correct' => true]);
+        });
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($student)
+            ->test(PracticeSetup::class, ['course' => $course])
+            ->fillForm([
+                'question_count' => 2,
+                'duration_minutes' => 20,
+                'randomize_questions' => false,
+                'randomize_options' => false,
+            ])
+            ->call('startPractice')
+            ->assertHasNoFormErrors()
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('quiz_attempts', [
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'question_count' => 2,
+            'duration_minutes' => 20,
+            'status' => 'in_progress',
+        ]);
+        $this->assertDatabaseCount('attempt_questions', 2);
+        $this->assertDatabaseCount('attempt_answers', 2);
     }
 
     public function test_student_cannot_open_setup_without_current_course_access(): void

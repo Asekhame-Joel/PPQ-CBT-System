@@ -16,12 +16,16 @@
         </div>
     </x-filament::section>
 
-    <form wire:submit="saveSettings" class="space-y-6">
+    <form wire:submit="startPractice" class="space-y-6">
         {{ $this->form }}
 
         <div class="flex flex-wrap gap-3">
-            <x-filament::button type="submit" icon="heroicon-o-check">
-                Save practice settings
+            <x-filament::button type="submit" icon="heroicon-o-play" wire:loading.attr="disabled">
+                Start practice
+            </x-filament::button>
+
+            <x-filament::button type="button" wire:click="saveSettings" color="gray" icon="heroicon-o-check">
+                Save settings
             </x-filament::button>
 
             <x-filament::button

@@ -4,6 +4,7 @@ namespace App\Filament\Student\Pages;
 
 use App\Models\Course;
 use App\Models\CourseAccess;
+use App\Practice\StartPracticeAttempt;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -112,6 +113,29 @@ class PracticeSetup extends Page
             ->title('Practice settings saved')
             ->success()
             ->send();
+    }
+
+    public function startPractice(StartPracticeAttempt $startAttempt): void
+    {
+        $data = $this->form->getState();
+
+        auth()->user()->studentSetting()->updateOrCreate([], [
+            'preferred_question_count' => $data['question_count'],
+            'preferred_duration' => $data['duration_minutes'],
+            'randomize_questions' => $data['randomize_questions'],
+            'randomize_options' => $data['randomize_options'],
+        ]);
+
+        $attempt = $startAttempt->handle(
+            auth()->user(),
+            $this->course,
+            $data['question_count'],
+            $data['duration_minutes'],
+            $data['randomize_questions'],
+            $data['randomize_options'],
+        );
+
+        $this->redirect(PracticeSession::getUrl(['attempt' => $attempt], panel: 'student'));
     }
 
     public function getHeading(): string
