@@ -18,12 +18,15 @@ class CheckProductionReadiness extends Command
         $checks = [
             'Production environment' => config('app.env') === 'production',
             'Debug mode disabled' => config('app.debug') === false,
+            'Application encryption key' => filled(config('app.key')),
             'HTTPS application URL' => str_starts_with((string) config('app.url'), 'https://'),
             'Database connection' => $this->databaseIsAvailable(),
             'Redis connection' => $this->redisIsAvailable(),
             'Redis queue' => config('queue.default') === 'redis',
             'Redis cache' => config('cache.default') === 'redis',
             'Redis sessions' => config('session.driver') === 'redis',
+            'Shared maintenance mode' => config('app.maintenance.driver') === 'cache',
+            'Failed queue job storage' => config('queue.failed.driver') === 'database-uuids',
             'Paystack secret key' => filled(config('services.paystack.secret_key')),
         ];
 

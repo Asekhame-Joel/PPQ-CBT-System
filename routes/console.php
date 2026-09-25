@@ -11,3 +11,7 @@ Artisan::command('inspire', function () {
 Schedule::command('queue:prune-failed --hours=168')
     ->daily()
     ->withoutOverlapping();
+
+Schedule::command('exam:submit-expired-attempts')
+    ->everyMinute()
+    ->withoutOverlapping();
