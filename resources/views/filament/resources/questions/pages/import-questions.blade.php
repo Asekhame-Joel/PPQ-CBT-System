@@ -1,4 +1,18 @@
 <x-filament-panels::page>
+    <x-admin-ui />
+
+    <header class="ea-intro">
+        <p class="ea-eyebrow">Question bank</p>
+        <h2 class="ea-title">Upload, check, then publish.</h2>
+        <p class="ea-copy">Use the Moodle-style TXT template or the structured Word template. Nothing is added until the preview has no errors and you confirm the import.</p>
+    </header>
+
+    <div class="ea-steps">
+        <div class="ea-step"><span class="ea-step-number">1</span><div><strong>Choose the course</strong><span>Select where these questions belong.</span></div></div>
+        <div class="ea-step"><span class="ea-step-number">2</span><div><strong>Upload DOCX or TXT</strong><span>The file is validated before import.</span></div></div>
+        <div class="ea-step"><span class="ea-step-number">3</span><div><strong>Review and confirm</strong><span>Check answers and fix any reported errors.</span></div></div>
+    </div>
+
     <x-filament::section
         heading="Download a template"
         description="Start with one of these examples and keep its question and answer structure."

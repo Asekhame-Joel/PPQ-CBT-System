@@ -1,101 +1,58 @@
 <x-filament-panels::page>
-    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <x-student-ui />
+
+    <header class="ef-page-intro">
+        <p class="ef-eyebrow">Course catalogue</p>
+        <h1 class="ef-title">Choose a course and start practising.</h1>
+        <p class="ef-subtitle">Past questions prepared for your department and level.</p>
+    </header>
+
+    <div class="ef-grid">
         @forelse ($this->courses as $course)
-            @php
-                $hasEnoughQuestions = $course->questions_count >= $course->min_question_count;
-            @endphp
+            @php($hasEnoughQuestions = $course->questions_count >= $course->min_question_count)
 
-            <x-filament::section>
-                <div class="flex h-full flex-col gap-5">
-                    <div>
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p class="text-sm font-semibold text-primary-600 dark:text-primary-400">
-                                    {{ $course->code }}
-                                </p>
-                                <h2 class="mt-1 text-lg font-bold text-gray-950 dark:text-white">
-                                    {{ $course->name }}
-                                </h2>
-                            </div>
-
-                            <x-filament::badge :color="$course->is_unlocked ? 'success' : 'gray'">
-                                {{ $course->is_unlocked ? 'Unlocked' : 'Locked' }}
-                            </x-filament::badge>
-                        </div>
-
-                        @if (filled($course->description))
-                            <p class="mt-3 line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
-                                {{ $course->description }}
-                            </p>
-                        @endif
-                    </div>
-
-                    <dl class="grid grid-cols-3 gap-3 text-sm">
-                        <div class="rounded-lg bg-gray-50 p-3 dark:bg-white/5">
-                            <dt class="text-gray-500 dark:text-gray-400">Level</dt>
-                            <dd class="mt-1 font-semibold text-gray-950 dark:text-white">
-                                {{ $course->level?->name ?? 'General' }}
-                            </dd>
-                        </div>
-                        <div class="rounded-lg bg-gray-50 p-3 dark:bg-white/5">
-                            <dt class="text-gray-500 dark:text-gray-400">Questions</dt>
-                            <dd class="mt-1 font-semibold text-gray-950 dark:text-white">
-                                {{ number_format($course->questions_count) }}
-                            </dd>
-                        </div>
-                        <div class="rounded-lg bg-gray-50 p-3 dark:bg-white/5">
-                            <dt class="text-gray-500 dark:text-gray-400">Price</dt>
-                            <dd class="mt-1 font-semibold text-gray-950 dark:text-white">
-                                &#8358;{{ number_format((float) $course->price, 2) }}
-                            </dd>
-                        </div>
-                    </dl>
-
-                    <div class="mt-auto">
-                        @if ($course->is_unlocked && $hasEnoughQuestions)
-                            <x-filament::button
-                                tag="a"
-                                href="{{ \App\Filament\Student\Pages\PracticeSetup::getUrl(['course' => $course], panel: 'student') }}"
-                                class="w-full"
-                                icon="heroicon-o-play"
-                            >
-                                Start practice
-                            </x-filament::button>
-                        @elseif ($course->is_unlocked)
-                            <x-filament::button disabled color="gray" class="w-full" icon="heroicon-o-clock">
-                                Questions not available yet
-                            </x-filament::button>
-                        @elseif ($hasEnoughQuestions)
-                            <x-filament::button
-                                tag="a"
-                                href="{{ \App\Filament\Student\Pages\Checkout::getUrl(['course' => $course], panel: 'student') }}"
-                                class="w-full"
-                                icon="heroicon-o-lock-closed"
-                            >
-                                Unlock course
-                            </x-filament::button>
-                        @else
-                            <x-filament::button disabled color="gray" class="w-full" icon="heroicon-o-clock">
-                                Not available yet
-                            </x-filament::button>
-                        @endif
-                    </div>
+            <article class="ef-card">
+                <div class="ef-card-top">
+                    <span class="ef-code">{{ $course->code }}</span>
+                    <span @class(['ef-badge', 'ef-badge--ok' => $course->is_unlocked, 'ef-badge--locked' => ! $course->is_unlocked])>
+                        {{ $course->is_unlocked ? '✓ Unlocked' : 'Locked' }}
+                    </span>
                 </div>
-            </x-filament::section>
+
+                <h2 class="ef-course-name">{{ $course->name }}</h2>
+                <p class="ef-description">
+                    {{ filled($course->description) ? $course->description : number_format($course->questions_count).' past questions ready for practice.' }}
+                </p>
+                <div class="ef-details">
+                    <span>{{ $course->level?->name ?? 'General' }}</span>
+                    <span>{{ number_format($course->questions_count) }} questions</span>
+                </div>
+
+                <div class="ef-card-footer">
+                    <div>
+                        <p class="ef-meta-label">Course access</p>
+                        <p class="ef-meta-value">&#8358;{{ number_format((float) $course->price, 2) }}</p>
+                    </div>
+
+                    @if ($course->is_unlocked && $hasEnoughQuestions)
+                        <x-filament::button tag="a" href="{{ \App\Filament\Student\Pages\PracticeSetup::getUrl(['course' => $course], panel: 'student') }}" icon="heroicon-o-play">Start practice</x-filament::button>
+                    @elseif ($course->is_unlocked)
+                        <x-filament::button disabled color="gray" icon="heroicon-o-clock">Questions not available yet</x-filament::button>
+                    @elseif ($hasEnoughQuestions)
+                        <x-filament::button tag="a" href="{{ \App\Filament\Student\Pages\Checkout::getUrl(['course' => $course], panel: 'student') }}" icon="heroicon-o-lock-closed">Unlock course</x-filament::button>
+                    @else
+                        <x-filament::button disabled color="gray" icon="heroicon-o-clock">Not available yet</x-filament::button>
+                    @endif
+                </div>
+            </article>
         @empty
-            <div class="md:col-span-2 xl:col-span-3">
+            <div class="ef-empty md:col-span-2 xl:col-span-3">
                 @if ($this->hasCompleteAcademicProfile())
-                    <x-filament::section icon="heroicon-o-book-open" heading="No courses available">
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            There are no active courses for your level and department yet.
-                        </p>
-                    </x-filament::section>
+                    <h2 class="ef-course-name">No courses available</h2>
+                    <p class="ef-description">There are no active courses for your level and department yet.</p>
                 @else
-                    <x-filament::section icon="heroicon-o-user-circle" heading="Complete your academic profile">
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Your department and level are required before we can show your available courses.
-                        </p>
-                    </x-filament::section>
+                    <h2 class="ef-course-name">Complete your academic profile</h2>
+                    <p class="ef-description">Your department and level are required before we can show your available courses.</p>
                 @endif
             </div>
         @endforelse

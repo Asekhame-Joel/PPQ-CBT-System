@@ -37,6 +37,16 @@ class ImportQuestions extends Page
 
     public bool $hasPreview = false;
 
+    public function getHeading(): string
+    {
+        return 'Import questions';
+    }
+
+    public function getSubheading(): string
+    {
+        return 'Upload a DOCX or TXT file, review every question, then confirm the import.';
+    }
+
     public function mount(): void
     {
         $this->form->fill();
@@ -66,6 +76,7 @@ class ImportQuestions extends Page
                             ->required(),
                         FileUpload::make('file')
                             ->label('Questions file')
+                            ->hint('DOCX or TXT')
                             ->acceptedFileTypes([
                                 'text/plain',
                                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

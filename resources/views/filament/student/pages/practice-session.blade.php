@@ -1,4 +1,6 @@
 <x-filament-panels::page>
+    <x-student-ui />
+
     <div
         x-data="{
             remaining: Math.max(0, {{ $expiresAtTimestamp }} - Math.floor(Date.now() / 1000)),
@@ -19,7 +21,7 @@
             },
         }"
         x-init="tick(); timer = setInterval(() => tick(), 1000)"
-        class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]"
+        class="ef-exam-shell grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]"
     >
         <div class="space-y-6">
             <x-filament::section>
@@ -34,7 +36,7 @@
                     </div>
 
                     <div
-                        class="rounded-lg bg-gray-950 px-4 py-2 font-mono text-xl font-bold text-white"
+                        class="ef-timer bg-gray-950 px-4 py-2 font-mono text-xl font-bold text-white"
                         :class="remaining <= 60 ? 'bg-danger-600' : 'bg-gray-950'"
                         aria-live="polite"
                     >

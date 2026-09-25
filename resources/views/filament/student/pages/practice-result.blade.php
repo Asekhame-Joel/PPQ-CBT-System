@@ -1,7 +1,16 @@
 <x-filament-panels::page>
+    <x-student-ui />
+
     @php
         $result = $this->result;
     @endphp
+
+    <div class="ef-result-shell space-y-6">
+    <header class="ef-page-intro">
+        <p class="ef-eyebrow">Practice complete</p>
+        <h1 class="ef-title">Your result is ready.</h1>
+        <p class="ef-subtitle">Review every answer and learn from the explanations below.</p>
+    </header>
 
     <x-filament::section>
         <div class="flex flex-wrap items-start justify-between gap-5">
@@ -17,10 +26,8 @@
                 </p>
             </div>
 
-            <div class="text-right">
-                <p class="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                    {{ number_format((float) $result->score_percentage, 2) }}%
-                </p>
+            <div class="flex flex-col items-center gap-3 text-center">
+                <p class="ef-result-score text-3xl font-bold">{{ number_format((float) $result->score_percentage, 2) }}%</p>
                 <x-filament::badge :color="$result->status === \App\Enums\AttemptStatus::Expired ? 'warning' : 'success'">
                     {{ $result->status === \App\Enums\AttemptStatus::Expired ? 'Time expired' : 'Submitted' }}
                 </x-filament::badge>
@@ -175,4 +182,5 @@
     >
         Back to my courses
     </x-filament::button>
+    </div>
 </x-filament-panels::page>

@@ -1,4 +1,13 @@
 <x-filament-panels::page>
+    <x-student-ui />
+
+    <div class="ef-setup-shell space-y-6">
+    <header class="ef-page-intro">
+        <p class="ef-eyebrow">Practice setup</p>
+        <h1 class="ef-title">Prepare your session.</h1>
+        <p class="ef-subtitle">Choose a comfortable question count and duration before you begin.</p>
+    </header>
+
     <x-filament::section>
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -37,4 +46,5 @@
             </x-filament::button>
         </div>
     </form>
+    </div>
 </x-filament-panels::page>

@@ -1,5 +1,19 @@
 <x-filament-widgets::widget>
-    <div class="grid gap-6 xl:grid-cols-2">
+    <x-student-ui />
+
+    <div class="ef-dashboard-hero">
+        <div>
+            <p class="ef-eyebrow">Ready when you are</p>
+            <h2 class="ef-course-name">Practise a past-question course today.</h2>
+            <p class="ef-description">Unlock a course or continue one you already own.</p>
+        </div>
+        <div class="ef-dashboard-actions">
+            <x-filament::button tag="a" href="{{ \App\Filament\Student\Pages\MyCourses::getUrl(panel: 'student') }}" icon="heroicon-o-play">My courses</x-filament::button>
+            <x-filament::button tag="a" href="{{ \App\Filament\Student\Pages\AvailableCourses::getUrl(panel: 'student') }}" color="gray" icon="heroicon-o-book-open">Browse courses</x-filament::button>
+        </div>
+    </div>
+
+    <div class="ef-dashboard-activity grid gap-6 xl:grid-cols-2">
         <x-filament::section heading="Continue practicing" icon="heroicon-o-play-circle">
             <div class="space-y-3">
                 @forelse ($this->activeAttempts as $attempt)

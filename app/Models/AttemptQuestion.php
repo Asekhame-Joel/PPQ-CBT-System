@@ -44,6 +44,18 @@ class AttemptQuestion extends Model
         return $this->hasMany(QuestionReport::class);
     }
 
+    public function optionText(?int $optionId): ?string
+    {
+        if ($optionId === null) {
+            return null;
+        }
+
+        $option = collect($this->options_snapshot)
+            ->first(fn (array $option): bool => (int) $option['id'] === $optionId);
+
+        return is_array($option) ? (string) $option['text'] : null;
+    }
+
     protected function casts(): array
     {
         return [
