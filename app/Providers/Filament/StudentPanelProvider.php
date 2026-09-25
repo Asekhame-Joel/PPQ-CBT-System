@@ -29,7 +29,9 @@ class StudentPanelProvider extends PanelProvider
             ->path('student')
             ->login()
             ->registration(Register::class)
-            ->brandName('Exam Practice')
+            ->brandName('ExamForge')
+            ->darkMode(false)
+            ->themeSwitcher(false)
             ->colors([
                 'primary' => Color::Indigo,
             ])

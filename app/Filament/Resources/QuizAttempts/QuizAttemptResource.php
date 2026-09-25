@@ -21,6 +21,10 @@ class QuizAttemptResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Review';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Practice attempts';
 
     public static function infolist(Schema $schema): Schema

@@ -29,7 +29,7 @@ class PaystackGateway implements PaymentGateway
 
         $authorizationUrl = data_get($response, 'data.authorization_url');
 
-        if (! is_string($authorizationUrl) || ! str_starts_with($authorizationUrl, 'https://')) {
+        if (! is_string($authorizationUrl) || ! $this->isPaystackCheckoutUrl($authorizationUrl)) {
             throw new RuntimeException('Paystack did not return a valid authorization URL.');
         }
 
@@ -71,5 +71,19 @@ class PaystackGateway implements PaymentGateway
     private function toMinorUnits(string $amount): int
     {
         return (int) round((float) $amount * 100);
+    }
+
+    private function isPaystackCheckoutUrl(string $url): bool
+    {
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if ($scheme !== 'https' || ! is_string($host)) {
+            return false;
+        }
+
+        $host = strtolower($host);
+
+        return $host === 'paystack.com' || str_ends_with($host, '.paystack.com');
     }
 }

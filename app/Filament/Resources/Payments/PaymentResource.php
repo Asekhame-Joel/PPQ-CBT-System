@@ -17,6 +17,10 @@ class PaymentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Core operations';
+
+    protected static ?int $navigationSort = 2;
+
     public static function getNavigationBadge(): ?string
     {
         $count = static::getModel()::query()

@@ -1,59 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ExamForge
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+ExamForge is a Laravel and Filament platform for university students to unlock past-question courses, complete timed practice exams, and review their answers.
 
-## About Laravel
+## Core workflow
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Students register with their department and academic level.
+- Students pay through Paystack to unlock a course.
+- Administrators can manually approve a payment that remains pending.
+- Administrators import questions from Moodle-style TXT or structured DOCX files.
+- Students configure and complete timed practice sessions.
+- Answers save automatically and results include explanations.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Local setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Requirements: PHP, Composer, MySQL, Redis, and Node.js.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Create the MySQL database, update the database credentials in `.env`, then run:
 
-## Contributing
+```bash
+php artisan migrate --seed
+php artisan exam:create-admin
+php artisan filament:assets
+npm install --ignore-scripts
+npm run build
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Open `/admin` for administration or `/student` for the student portal. Add the institution's departments in the admin panel before allowing student registration.
 
-## Code of Conduct
+## Redis
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Local development and production can use Redis for cache, sessions, and queues:
 
-## Security Vulnerabilities
+```env
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Use `REDIS_URL` when the hosting provider supplies one connection URL. A queue worker must be running in production.
 
-## License
+## Paystack
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# PPQ-CBT-System
+Set the secret key in the production environment:
+
+```env
+PAYSTACK_SECRET_KEY=your_live_secret_key
+PAYSTACK_BASE_URL=https://api.paystack.co
+```
+
+Configure the Paystack webhook to send `charge.success` events to:
+
+```text
+https://your-domain.example/webhooks/paystack
+```
+
+## Production checklist
+
+- Set `APP_ENV=production`, `APP_DEBUG=false`, and the correct `APP_URL`.
+- Attach MySQL and Redis services.
+- Run `php artisan migrate --force` and `php artisan db:seed --force`.
+- Run a queue worker.
+- Run Laravel's scheduler every minute so stale failed jobs are pruned automatically.
+- Configure the Paystack webhook and live secret key.
+- Create the first administrator with `php artisan exam:create-admin`.
+- Confirm `/up` returns a successful health response.
+- Run `php artisan exam:check-production` and resolve every failed check.
+- Schedule database backups and monitor failed jobs and application errors.
+
+## Tests
+
+```bash
+php artisan test
+```

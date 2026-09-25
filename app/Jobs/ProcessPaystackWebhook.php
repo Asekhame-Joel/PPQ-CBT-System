@@ -7,6 +7,8 @@ use App\Payments\ConfirmCoursePayment;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessPaystackWebhook implements ShouldBeUnique, ShouldQueue
 {
@@ -33,5 +35,13 @@ class ProcessPaystackWebhook implements ShouldBeUnique, ShouldQueue
     public function uniqueId(): string
     {
         return $this->reference;
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Paystack webhook processing failed.', [
+            'reference' => $this->reference,
+            'exception' => $exception::class,
+        ]);
     }
 }

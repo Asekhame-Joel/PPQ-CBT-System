@@ -21,6 +21,10 @@ class QuestionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQuestionMarkCircle;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Core operations';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'question_text';
 
     public static function form(Schema $schema): Schema

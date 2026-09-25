@@ -12,8 +12,10 @@ use App\Payments\ConfirmCoursePayment;
 use App\Payments\PaymentGateway;
 use App\Payments\PaymentVerification;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Mockery\MockInterface;
+use RuntimeException;
 use Tests\TestCase;
 
 class PaystackWebhookTest extends TestCase
@@ -46,6 +48,19 @@ class PaystackWebhookTest extends TestCase
             ->postJson(route('webhooks.paystack'), $payload);
 
         $response->assertUnauthorized();
+        Queue::assertNotPushed(ProcessPaystackWebhook::class);
+    }
+
+    public function test_webhook_returns_service_unavailable_when_paystack_is_not_configured(): void
+    {
+        config()->set('services.paystack.secret_key');
+        Queue::fake([ProcessPaystackWebhook::class]);
+
+        $this->postJson(route('webhooks.paystack'), [
+            'event' => 'charge.success',
+            'data' => ['reference' => 'EXAM-WEBHOOK-NOT-CONFIGURED'],
+        ])->assertServiceUnavailable();
+
         Queue::assertNotPushed(ProcessPaystackWebhook::class);
     }
 
@@ -103,6 +118,19 @@ class PaystackWebhookTest extends TestCase
 
         $this->assertDatabaseCount('course_access', 1);
         $this->assertSame(PaymentStatus::Successful, $payment->fresh()->status);
+    }
+
+    public function test_failed_webhook_job_logs_only_safe_diagnostic_context(): void
+    {
+        Log::shouldReceive('error')
+            ->once()
+            ->with('Paystack webhook processing failed.', [
+                'reference' => 'EXAM-WEBHOOK-FAILED',
+                'exception' => RuntimeException::class,
+            ]);
+
+        (new ProcessPaystackWebhook('EXAM-WEBHOOK-FAILED'))
+            ->failed(new RuntimeException('Provider response intentionally omitted'));
     }
 
     /** @param array<string, mixed> $payload */

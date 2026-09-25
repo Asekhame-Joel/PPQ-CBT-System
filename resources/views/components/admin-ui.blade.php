@@ -1,9 +1,9 @@
 @once
     <style>
         :root { --ea-ink:#172554; --ea-muted:#64748b; --ea-brand:#4f46e5; --ea-panel:rgba(255,255,255,.78); --ea-line:rgba(255,255,255,.85); --ea-shadow:0 22px 55px -40px rgba(30,41,59,.48); }
-        .fi-body { background:linear-gradient(135deg,#f8fafc,#eef2ff 52%,#ecfeff); }
+        .fi-body { color-scheme:light; background:linear-gradient(145deg,#ffffff 0%,#f6f8ff 52%,#edf5ff 100%); }
         .dark .fi-body { background:linear-gradient(135deg,#111827,#172554 52%,#083344); }
-        .fi-topbar,.fi-sidebar { background-color:rgba(255,255,255,.80); backdrop-filter:blur(20px); }
+        .fi-topbar,.fi-sidebar { background-color:rgba(255,255,255,.95); backdrop-filter:blur(20px); }
         .dark .fi-topbar,.dark .fi-sidebar { background-color:rgba(17,24,39,.82); }
         .fi-section,.fi-ta-ctn { border-color:var(--ea-line); border-radius:1.35rem; background:var(--ea-panel); box-shadow:var(--ea-shadow); backdrop-filter:blur(18px); }
         .dark .fi-section,.dark .fi-ta-ctn { border-color:rgba(255,255,255,.10); background:rgba(15,23,42,.72); }
@@ -18,6 +18,10 @@
         .ea-step-number { flex:none; display:grid; width:2rem; height:2rem; place-items:center; border-radius:.7rem; color:#fff; background:var(--ea-brand); font-size:.8rem; font-weight:800; }
         .ea-step strong { display:block; color:var(--ea-ink); font-size:.86rem; } .dark .ea-step strong { color:#f8fafc; }
         .ea-step span { display:block; margin-top:.2rem; color:var(--ea-muted); font-size:.78rem; line-height:1.45; } .dark .ea-step span { color:#94a3b8; }
+        .ea-auth-intro { margin-bottom:1.25rem; text-align:center; }
+        .ea-auth-mark { display:grid; width:3rem; height:3rem; margin:0 auto .9rem; place-items:center; border-radius:1rem; color:#fff; background:var(--ea-brand); box-shadow:0 12px 28px -14px rgba(79,70,229,.8); font-size:1.15rem; font-weight:900; }
+        .ea-auth-title { color:var(--ea-ink); font-size:1.25rem; font-weight:800; }
+        .ea-auth-copy { margin-top:.35rem; color:var(--ea-muted); font-size:.84rem; }
         @media (min-width:768px) { .ea-steps { grid-template-columns:repeat(3,minmax(0,1fr)); } }
     </style>
 @endonce

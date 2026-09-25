@@ -1,9 +1,9 @@
 @once
     <style>
         :root { --ef-ink:#1e1b4b; --ef-muted:#68677e; --ef-brand:#4f46e5; --ef-soft:rgba(79,70,229,.10); --ef-panel:rgba(255,255,255,.72); --ef-line:rgba(255,255,255,.82); --ef-green:#16845b; --ef-green-soft:#dcfce7; --ef-amber:#a16207; --ef-amber-soft:#fef3c7; --ef-shadow:0 22px 55px -38px rgba(30,27,75,.46); }
-        .fi-body { background:linear-gradient(135deg,#eef2ff,#e0f2fe 48%,#ecfeff); }
+        .fi-body { color-scheme:light; background:linear-gradient(145deg,#ffffff 0%,#f6f8ff 52%,#edf5ff 100%); }
         .dark .fi-body { background:linear-gradient(135deg,#111827,#172554 52%,#083344); }
-        .fi-topbar,.fi-sidebar { background-color:rgba(255,255,255,.76); backdrop-filter:blur(22px); }
+        .fi-topbar,.fi-sidebar { background-color:rgba(255,255,255,.94); backdrop-filter:blur(22px); }
         .dark .fi-topbar,.dark .fi-sidebar { background-color:rgba(17,24,39,.80); }
         .ef-page-intro { margin-bottom:1.5rem; }
         .ef-eyebrow { color:var(--ef-brand); font-size:.75rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
@@ -39,7 +39,7 @@
         .dark .ef-exam-shell label { background:rgba(15,23,42,.45); }
         .ef-timer { border-radius:.85rem; box-shadow:0 12px 25px -16px rgba(30,27,75,.75); font-variant-numeric:tabular-nums; }
         .ef-result-score { display:grid; width:9rem; height:9rem; place-items:center; border-radius:50%; color:#fff; background:var(--ef-brand); box-shadow:0 0 0 9px var(--ef-soft); }
-        .fi-simple-layout { background:linear-gradient(135deg,#eef2ff,#e0f2fe 48%,#ecfeff); }
+        .fi-simple-layout { color-scheme:light; background:linear-gradient(145deg,#ffffff 0%,#f5f8ff 55%,#eaf3ff 100%); }
         .dark .fi-simple-layout { background:linear-gradient(135deg,#111827,#172554 52%,#083344); }
         .fi-simple-main { border:1px solid var(--ef-line); border-radius:1.75rem; background:rgba(255,255,255,.76); box-shadow:var(--ef-shadow); backdrop-filter:blur(22px); }
         .dark .fi-simple-main { border-color:rgba(255,255,255,.10); background:rgba(15,23,42,.78); }
@@ -52,6 +52,16 @@
         .ef-dashboard-actions { display:flex; flex-wrap:wrap; gap:.65rem; }
         .ef-dashboard-activity .fi-section,.fi-wi-stats-overview-stat { border:1px solid var(--ef-line); border-radius:1.35rem; background:var(--ef-panel); box-shadow:var(--ef-shadow); backdrop-filter:blur(18px); }
         .dark .ef-dashboard-activity .fi-section,.dark .fi-wi-stats-overview-stat { border-color:rgba(255,255,255,.10); background:rgba(15,23,42,.68); }
+        .ef-status-card { max-width:42rem; margin-inline:auto; padding:clamp(1.5rem,5vw,2.5rem); border:1px solid var(--ef-line); border-radius:1.75rem; background:#fff; box-shadow:var(--ef-shadow); text-align:center; }
+        .ef-status-icon { display:grid; width:4rem; height:4rem; margin:0 auto 1rem; place-items:center; border-radius:1.25rem; font-size:1.75rem; font-weight:900; }
+        .ef-status-icon--success { color:var(--ef-green); background:var(--ef-green-soft); }
+        .ef-status-icon--pending { color:var(--ef-amber); background:var(--ef-amber-soft); }
+        .ef-receipt { max-width:48rem; margin-inline:auto; overflow:hidden; border:1px solid var(--ef-line); border-radius:1.75rem; background:#fff; box-shadow:var(--ef-shadow); }
+        .ef-receipt-main { padding:clamp(1.35rem,5vw,2.25rem); }
+        .ef-receipt-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; padding-bottom:1.25rem; border-bottom:1px solid #e5e7eb; }
+        .ef-receipt-grid { display:grid; gap:1.25rem; margin-top:1.5rem; }
+        .ef-receipt-total { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1.5rem; padding:1rem 1.15rem; border-radius:1rem; background:#eef2ff; }
+        @media (min-width:640px) { .ef-receipt-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
         @media (min-width:640px) { .ef-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
         @media (min-width:1280px) { .ef-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
         @media (max-width:520px) { .ef-card-footer { align-items:stretch; flex-direction:column; } .ef-card-footer .fi-btn { width:100%; } }

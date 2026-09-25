@@ -4,56 +4,51 @@ namespace App\Console\Commands;
 
 use App\Enums\UserRole;
 use App\Models\User;
-use Illuminate\Console\Attributes\Description;
-use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
 
-#[Signature('exam:create-admin {--name=} {--email=} {--phone=}')]
-#[Description('Create an active administrator account for the Exam Practice admin panel')]
 class CreateAdmin extends Command
 {
+    protected $signature = 'exam:create-admin
+        {--name= : Administrator name}
+        {--email= : Administrator email address}
+        {--phone= : Administrator phone number}';
+
+    protected $description = 'Create the first active ExamForge administrator';
+
     public function handle(): int
     {
-        $input = Validator::make([
-            'name' => trim((string) ($this->option('name') ?: $this->ask('Full name'))),
-            'email' => Str::lower(trim((string) ($this->option('email') ?: $this->ask('Email address')))),
-            'phone' => filled($phone = $this->option('phone'))
-                ? trim((string) $phone)
-                : null,
-            'password' => $this->secret('Password'),
-            'password_confirmation' => $this->secret('Confirm password'),
-        ], [
+        $name = (string) ($this->option('name') ?: $this->ask('Administrator name'));
+        $email = strtolower((string) ($this->option('email') ?: $this->ask('Administrator email address')));
+        $phone = $this->option('phone');
+        $password = (string) $this->secret('Password');
+        $password_confirmation = (string) $this->secret('Confirm password');
+
+        $validator = Validator::make(compact('name', 'email', 'phone', 'password', 'password_confirmation'), [
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'password' => ['required', 'confirmed', Password::default()],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        if ($input->fails()) {
-            foreach ($input->errors()->all() as $error) {
-                $this->components->error($error);
+        if ($validator->fails()) {
+            foreach ($validator->errors()->all() as $error) {
+                $this->error($error);
             }
 
             return self::FAILURE;
         }
 
-        $data = $input->safe();
-
-        $admin = User::create([
-            'name' => $data->string('name')->toString(),
-            'email' => $data->string('email')->toString(),
-            'phone' => $data->string('phone')->toString() ?: null,
-            'password' => $data->string('password')->toString(),
+        User::query()->create([
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'password' => $password,
             'role' => UserRole::Admin,
-            'department_id' => null,
-            'level_id' => null,
             'is_active' => true,
         ]);
 
-        $this->components->info("Administrator [{$admin->email}] created successfully.");
+        $this->info("Administrator [{$email}] created successfully. Sign in at /admin.");
 
         return self::SUCCESS;
     }

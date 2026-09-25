@@ -9,6 +9,7 @@ use App\Payments\PaystackGateway;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
 use Tests\TestCase;
 
 class PaystackGatewayTest extends TestCase
@@ -67,5 +68,35 @@ class PaystackGatewayTest extends TestCase
         $this->assertSame('EXAM-PAYSTACK-002', $result->reference);
         $this->assertSame(250000, $result->amount);
         $this->assertSame('NGN', $result->currency);
+    }
+
+    public function test_initialization_rejects_a_non_paystack_redirect_url(): void
+    {
+        config()->set('services.paystack.secret_key', 'test-secret');
+        $payment = Payment::factory()->for(User::factory())->for(Course::factory())->create();
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://api.paystack.co/transaction/initialize' => Http::response([
+                'status' => true,
+                'data' => ['authorization_url' => 'https://malicious.example/checkout'],
+            ]),
+        ]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Paystack did not return a valid authorization URL.');
+
+        app(PaystackGateway::class)->initialize($payment->load('user'), 'https://example.test/return');
+    }
+
+    public function test_gateway_fails_clearly_when_secret_key_is_missing(): void
+    {
+        config()->set('services.paystack.secret_key');
+        $payment = Payment::factory()->for(User::factory())->for(Course::factory())->create();
+        Http::preventStrayRequests();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Paystack is not configured.');
+
+        app(PaystackGateway::class)->initialize($payment->load('user'), 'https://example.test/return');
     }
 }

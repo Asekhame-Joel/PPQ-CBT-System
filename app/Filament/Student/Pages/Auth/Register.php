@@ -9,11 +9,17 @@ use Filament\Auth\Pages\Register as BaseRegister;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Illuminate\Validation\Rule;
 use SensitiveParameter;
 
 class Register extends BaseRegister
 {
+    public function getMaxWidth(): Width|string|null
+    {
+        return Width::TwoExtraLarge;
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -52,7 +58,8 @@ class Register extends BaseRegister
                     ->required(),
                 $this->getPasswordFormComponent(),
                 $this->getPasswordConfirmationFormComponent(),
-            ]);
+            ])
+            ->columns(2);
     }
 
     /**

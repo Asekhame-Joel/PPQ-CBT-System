@@ -1,37 +1,23 @@
 <x-filament-panels::page>
-    <div class="mx-auto max-w-2xl">
+    <x-student-ui />
+
+    <div class="ef-status-card">
         @if ($successful)
-            <x-filament::section icon="heroicon-o-check-circle" heading="Payment successful">
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ $payment->course->code }} has been unlocked and is ready for practice.
-                </p>
-
-                <div class="mt-5">
-                    <x-filament::button
-                        tag="a"
-                        href="{{ \App\Filament\Student\Pages\PracticeSetup::getUrl(['course' => $payment->course], panel: 'student') }}"
-                        icon="heroicon-o-play"
-                    >
-                        Start practice
-                    </x-filament::button>
-                </div>
-            </x-filament::section>
+            <div class="ef-status-icon ef-status-icon--success">✓</div>
+            <p class="ef-eyebrow">Payment complete</p>
+            <h1 class="ef-title">Payment successful</h1>
+            <p class="ef-subtitle">{{ $payment->course->code }} has been unlocked and is ready for practice.</p>
+            <div class="mt-6">
+                <x-filament::button tag="a" href="{{ \App\Filament\Student\Pages\PracticeSetup::getUrl(['course' => $payment->course], panel: 'student') }}" icon="heroicon-o-play">Start practice</x-filament::button>
+            </div>
         @else
-            <x-filament::section icon="heroicon-o-clock" heading="Payment not confirmed">
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    We could not confirm this payment yet. If you were charged, please wait briefly and return to this page.
-                </p>
-
-                <div class="mt-5">
-                    <x-filament::button
-                        tag="a"
-                        href="{{ \App\Filament\Student\Pages\AvailableCourses::getUrl(panel: 'student') }}"
-                        color="gray"
-                    >
-                        Return to courses
-                    </x-filament::button>
-                </div>
-            </x-filament::section>
+            <div class="ef-status-icon ef-status-icon--pending">!</div>
+            <p class="ef-eyebrow">Verification pending</p>
+            <h1 class="ef-title">Payment not confirmed</h1>
+            <p class="ef-subtitle">If you were charged, please wait briefly. An administrator can also confirm a pending payment after checking it.</p>
+            <div class="mt-6">
+                <x-filament::button tag="a" href="{{ \App\Filament\Student\Pages\AvailableCourses::getUrl(panel: 'student') }}" color="gray">Return to courses</x-filament::button>
+            </div>
         @endif
     </div>
 </x-filament-panels::page>
