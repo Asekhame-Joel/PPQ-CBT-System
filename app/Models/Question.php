@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Practice\PracticeQuestionSelector;
 use App\QuestionImports\QuestionFingerprint;
 use Database\Factories\QuestionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -25,6 +26,9 @@ class Question extends Model
                 $question->content_hash = QuestionFingerprint::make($question->question_text);
             }
         });
+
+        static::saved(fn (Question $question) => PracticeQuestionSelector::forget($question->course_id));
+        static::deleted(fn (Question $question) => PracticeQuestionSelector::forget($question->course_id));
     }
 
     public function course(): BelongsTo

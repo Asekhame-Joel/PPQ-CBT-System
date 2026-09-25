@@ -9,16 +9,22 @@ use App\Models\Course;
 use App\Models\CourseAccess;
 use App\Models\Payment;
 use App\Models\User;
+use App\Support\StudentActionRateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class InitiateCoursePayment
 {
-    public function __construct(private PaymentGateway $gateway) {}
+    public function __construct(
+        private PaymentGateway $gateway,
+        private StudentActionRateLimiter $rateLimiter,
+    ) {}
 
     public function handle(User $student, Course $course): PaymentInitialization
     {
+        $this->rateLimiter->ensure($student, 'start-payment', maximumAttempts: 3, decaySeconds: 600);
+
         $eligible = Course::query()
             ->active()
             ->eligibleFor($student)

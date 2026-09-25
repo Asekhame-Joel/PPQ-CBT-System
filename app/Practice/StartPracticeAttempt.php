@@ -6,10 +6,8 @@ use App\Enums\AttemptStatus;
 use App\Enums\AttemptType;
 use App\Models\Course;
 use App\Models\CourseAccess;
-use App\Models\Question;
 use App\Models\QuizAttempt;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use LogicException;
@@ -34,17 +32,7 @@ class StartPracticeAttempt
             $randomizeQuestions,
             $randomizeOptions,
         ): QuizAttempt {
-            $questions = Question::query()
-                ->active()
-                ->where('course_id', $course->id)
-                ->with('options')
-                ->when(
-                    $randomizeQuestions,
-                    fn (Builder $query): Builder => $query->inRandomOrder(),
-                    fn (Builder $query): Builder => $query->orderBy('id'),
-                )
-                ->limit($questionCount)
-                ->get();
+            $questions = app(PracticeQuestionSelector::class)->select($course, $questionCount, $randomizeQuestions);
 
             if ($questions->count() !== $questionCount) {
                 throw ValidationException::withMessages([
@@ -53,16 +41,8 @@ class StartPracticeAttempt
             }
 
             $startedAt = now();
-            $attempt = QuizAttempt::create([
-                'user_id' => $student->id,
-                'course_id' => $course->id,
-                'attempt_type' => AttemptType::NewPractice,
-                'question_count' => $questionCount,
-                'duration_minutes' => $durationMinutes,
-                'started_at' => $startedAt,
-                'expires_at' => $startedAt->copy()->addMinutes($durationMinutes),
-                'status' => AttemptStatus::InProgress,
-            ]);
+
+            $snapshots = [];
 
             foreach ($questions as $index => $question) {
                 $options = $randomizeOptions
@@ -74,7 +54,7 @@ class StartPracticeAttempt
                     throw new LogicException("Question {$question->id} does not have a valid answer set.");
                 }
 
-                $attemptQuestion = $attempt->questions()->create([
+                $snapshots[] = [
                     'question_id' => $question->id,
                     'position' => $index + 1,
                     'question_snapshot' => $question->question_text,
@@ -84,12 +64,42 @@ class StartPracticeAttempt
                     ])->all(),
                     'correct_option_snapshot' => $correctOptions->first()->id,
                     'explanation_snapshot' => $question->explanation,
-                ]);
-
-                $attemptQuestion->answer()->create();
+                ];
             }
 
-            return $attempt->load('questions.answer');
+            $attempt = QuizAttempt::create([
+                'user_id' => $student->id,
+                'course_id' => $course->id,
+                'attempt_type' => AttemptType::NewPractice,
+                'question_count' => $questionCount,
+                'duration_minutes' => $durationMinutes,
+                'started_at' => $startedAt,
+                'expires_at' => $startedAt->copy()->addMinutes($durationMinutes),
+                'status' => AttemptStatus::InProgress,
+            ]);
+
+            DB::table('attempt_questions')->insert(array_map(
+                fn (array $snapshot): array => [
+                    'quiz_attempt_id' => $attempt->id,
+                    ...$snapshot,
+                    'options_snapshot' => json_encode($snapshot['options_snapshot'], JSON_THROW_ON_ERROR),
+                    'created_at' => $startedAt,
+                    'updated_at' => $startedAt,
+                ],
+                $snapshots,
+            ));
+
+            $attemptQuestionIds = DB::table('attempt_questions')
+                ->where('quiz_attempt_id', $attempt->id)
+                ->pluck('id');
+
+            DB::table('attempt_answers')->insert($attemptQuestionIds->map(fn (int $id): array => [
+                'attempt_question_id' => $id,
+                'created_at' => $startedAt,
+                'updated_at' => $startedAt,
+            ])->all());
+
+            return $attempt->fresh(['questions.answer']);
         });
     }
 

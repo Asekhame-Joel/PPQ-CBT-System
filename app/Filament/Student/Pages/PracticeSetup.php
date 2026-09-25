@@ -5,6 +5,7 @@ namespace App\Filament\Student\Pages;
 use App\Models\Course;
 use App\Models\CourseAccess;
 use App\Practice\StartPracticeAttempt;
+use App\Support\StudentActionRateLimiter;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -115,9 +116,10 @@ class PracticeSetup extends Page
             ->send();
     }
 
-    public function startPractice(StartPracticeAttempt $startAttempt): void
+    public function startPractice(StartPracticeAttempt $startAttempt, StudentActionRateLimiter $rateLimiter): void
     {
         $data = $this->form->getState();
+        $rateLimiter->ensure(auth()->user(), 'start-practice', maximumAttempts: 5, decaySeconds: 60);
 
         auth()->user()->studentSetting()->updateOrCreate([], [
             'preferred_question_count' => $data['question_count'],

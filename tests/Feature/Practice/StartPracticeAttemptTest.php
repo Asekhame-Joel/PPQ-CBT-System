@@ -9,7 +9,9 @@ use App\Models\CourseAccess;
 use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\User;
+use App\Practice\PracticeQuestionSelector;
 use App\Practice\StartPracticeAttempt;
+use App\Support\StudentActionRateLimiter;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -111,6 +113,39 @@ class StartPracticeAttemptTest extends TestCase
             $this->assertDatabaseCount('quiz_attempts', 0);
             $this->assertDatabaseCount('attempt_questions', 0);
             $this->assertDatabaseCount('attempt_answers', 0);
+        }
+    }
+
+    public function test_question_pool_is_refreshed_when_questions_change(): void
+    {
+        [, $course] = $this->studentWithAccess(['min_question_count' => 1]);
+        $first = $this->createValidQuestion($course, 'First question?');
+        $selector = app(PracticeQuestionSelector::class);
+
+        $this->assertSame([$first->id], $selector->select($course, 1, false)->pluck('id')->all());
+
+        $second = $this->createValidQuestion($course, 'Second question?');
+
+        $this->assertSame(
+            [$first->id, $second->id],
+            $selector->select($course, 2, false)->pluck('id')->all(),
+        );
+    }
+
+    public function test_students_are_limited_when_starting_too_many_practice_attempts(): void
+    {
+        [$student] = $this->studentWithAccess();
+        $limiter = app(StudentActionRateLimiter::class);
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $limiter->ensure($student, 'start-practice', 5, 60);
+        }
+
+        try {
+            $limiter->ensure($student, 'start-practice', 5, 60);
+            $this->fail('A validation exception was not thrown.');
+        } catch (ValidationException $exception) {
+            $this->assertStringStartsWith('Please wait ', $exception->errors()['action'][0]);
         }
     }
 
