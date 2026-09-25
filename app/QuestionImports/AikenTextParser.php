@@ -38,6 +38,7 @@ class AikenTextParser
         }
 
         $answerLabel = null;
+        $explanation = null;
         $rawOptions = [];
 
         foreach ($lines as $line) {
@@ -47,8 +48,18 @@ class AikenTextParser
                 continue;
             }
 
+            if (preg_match('/^EXPLANATION\s*:\s*(.+)$/i', $line, $matches) === 1) {
+                if ($explanation !== null) {
+                    return "Question {$number}: the EXPLANATION line is duplicated.";
+                }
+
+                $explanation = trim($matches[1]);
+
+                continue;
+            }
+
             if (preg_match('/^([A-Z])[.)]\s+(.+)$/i', $line, $matches) !== 1) {
-                return "Question {$number}: '{$line}' is not a valid answer option or ANSWER line.";
+                return "Question {$number}: '{$line}' is not a valid answer option, ANSWER line, or EXPLANATION line.";
             }
 
             $label = strtoupper($matches[1]);
@@ -78,6 +89,6 @@ class AikenTextParser
             $options[] = new ParsedOption($label, $optionText, $label === $answerLabel);
         }
 
-        return new ParsedQuestion($questionText, $options);
+        return new ParsedQuestion($questionText, $options, $explanation);
     }
 }

@@ -5,77 +5,65 @@
         $result = $this->result;
     @endphp
 
-    <div class="ef-result-shell space-y-6">
+    <div class="ef-result-shell">
     <header class="ef-page-intro">
         <p class="ef-eyebrow">Practice complete</p>
         <h1 class="ef-title">Your result is ready.</h1>
         <p class="ef-subtitle">Review every answer and learn from the explanations below.</p>
     </header>
 
-    <x-filament::section>
-        <div class="flex flex-wrap items-start justify-between gap-5">
-            <div>
-                <p class="text-sm font-semibold text-primary-600 dark:text-primary-400">
-                    {{ $result->course->code }}
-                </p>
-                <h2 class="mt-1 text-xl font-bold text-gray-950 dark:text-white">
-                    {{ $result->course->name }}
-                </h2>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Submitted {{ $result->submitted_at->toDayDateTimeString() }}
-                </p>
+    <section class="ef-result-summary">
+        <div class="ef-result-overview">
+            <div class="ef-result-course">
+                <span>{{ $result->course->code }}</span>
+                <strong>{{ $result->course->name }}</strong>
+                <small>Submitted {{ $result->submitted_at->toDayDateTimeString() }}</small>
             </div>
 
-            <div class="flex flex-col items-center gap-3 text-center">
-                <p class="ef-result-score text-3xl font-bold">{{ number_format((float) $result->score_percentage, 2) }}%</p>
-                <x-filament::badge :color="$result->status === \App\Enums\AttemptStatus::Expired ? 'warning' : 'success'">
+            <div class="ef-result-score-wrap">
+                <div class="ef-result-score"><strong>{{ number_format((float) $result->score_percentage, 2) }}%</strong><span>Score</span></div>
+                <span class="ef-result-status">
                     {{ $result->status === \App\Enums\AttemptStatus::Expired ? 'Time expired' : 'Submitted' }}
-                </x-filament::badge>
+                </span>
             </div>
         </div>
 
-        <dl class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-            <div class="rounded-lg bg-gray-50 p-4 dark:bg-white/5">
-                <dt class="text-sm text-gray-500 dark:text-gray-400">Questions</dt>
-                <dd class="mt-1 text-xl font-bold text-gray-950 dark:text-white">{{ $result->question_count }}</dd>
+        <dl class="ef-result-stats">
+            <div>
+                <dt>Questions</dt><dd>{{ $result->question_count }}</dd>
             </div>
-            <div class="rounded-lg bg-success-50 p-4 dark:bg-success-400/10">
-                <dt class="text-sm text-success-700 dark:text-success-400">Correct</dt>
-                <dd class="mt-1 text-xl font-bold text-success-700 dark:text-success-400">{{ $result->correct_count }}</dd>
+            <div class="is-correct">
+                <dt>Correct</dt><dd>{{ $result->correct_count }}</dd>
             </div>
-            <div class="rounded-lg bg-danger-50 p-4 dark:bg-danger-400/10">
-                <dt class="text-sm text-danger-700 dark:text-danger-400">Incorrect</dt>
-                <dd class="mt-1 text-xl font-bold text-danger-700 dark:text-danger-400">{{ $result->incorrect_count }}</dd>
+            <div class="is-incorrect">
+                <dt>Incorrect</dt><dd>{{ $result->incorrect_count }}</dd>
             </div>
-            <div class="rounded-lg bg-gray-50 p-4 dark:bg-white/5">
-                <dt class="text-sm text-gray-500 dark:text-gray-400">Unanswered</dt>
-                <dd class="mt-1 text-xl font-bold text-gray-950 dark:text-white">{{ $result->unanswered_count }}</dd>
+            <div>
+                <dt>Unanswered</dt><dd>{{ $result->unanswered_count }}</dd>
             </div>
         </dl>
-    </x-filament::section>
+    </section>
 
-    <div class="space-y-6">
+    <div class="ef-review-list">
         @foreach ($result->questions as $question)
             @php
                 $selectedOptionId = $question->answer?->selected_option_id;
             @endphp
 
-            <x-filament::section>
-                <div class="flex items-start justify-between gap-4">
-                    <h3 class="font-semibold leading-7 text-gray-950 dark:text-white">
-                        {{ $question->position }}. {{ $question->question_snapshot }}
-                    </h3>
+            <section class="ef-review-card">
+                <div class="ef-review-heading">
+                    <h3><span>{{ $question->position }}</span>{{ $question->question_snapshot }}</h3>
 
                     @if ($selectedOptionId === null)
-                        <x-filament::badge color="gray">Unanswered</x-filament::badge>
+                        <span class="ef-review-badge is-unanswered">Unanswered</span>
                     @elseif ($question->answer->is_correct)
-                        <x-filament::badge color="success">Correct</x-filament::badge>
+                        <span class="ef-review-badge is-correct">Correct</span>
                     @else
-                        <x-filament::badge color="danger">Incorrect</x-filament::badge>
+                        <span class="ef-review-badge is-incorrect">Incorrect</span>
                     @endif
                 </div>
 
-                <div class="mt-5 space-y-2">
+                <div class="ef-review-options">
                     @foreach ($question->options_snapshot as $index => $option)
                         @php
                             $isCorrectOption = (int) $option['id'] === $question->correct_option_snapshot;
@@ -83,17 +71,14 @@
                         @endphp
 
                         <div @class([
-                            'flex items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm',
-                            'border-success-500 bg-success-50 text-success-800 dark:bg-success-400/10 dark:text-success-300' => $isCorrectOption,
-                            'border-danger-500 bg-danger-50 text-danger-800 dark:bg-danger-400/10 dark:text-danger-300' => $isSelectedOption && ! $isCorrectOption,
-                            'border-gray-200 text-gray-700 dark:border-white/10 dark:text-gray-300' => ! $isCorrectOption && ! $isSelectedOption,
+                            'ef-review-option',
+                            'is-correct' => $isCorrectOption,
+                            'is-incorrect' => $isSelectedOption && ! $isCorrectOption,
                         ])>
-                            <span>
-                                <span class="mr-1 font-semibold">{{ chr(65 + $index) }}.</span>
-                                {{ $option['text'] }}
-                            </span>
+                            <span class="ef-review-letter">{{ chr(65 + $index) }}</span>
+                            <span class="ef-review-option-text">{{ $option['text'] }}</span>
 
-                            <span class="shrink-0 font-medium">
+                            <span class="ef-review-note">
                                 @if ($isCorrectOption && $isSelectedOption)
                                     Your answer · Correct
                                 @elseif ($isCorrectOption)
@@ -107,9 +92,9 @@
                 </div>
 
                 @if (filled($question->explanation_snapshot))
-                    <div class="mt-5 border-t border-gray-200 pt-4 text-sm dark:border-white/10">
-                        <p class="font-semibold text-gray-950 dark:text-white">Explanation</p>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">{{ $question->explanation_snapshot }}</p>
+                    <div class="ef-review-explanation">
+                        <strong>Why this is correct</strong>
+                        <p>{{ $question->explanation_snapshot }}</p>
                     </div>
                 @endif
 
@@ -170,7 +155,7 @@
                         </x-filament::button>
                     @endif
                 </div>
-            </x-filament::section>
+            </section>
         @endforeach
     </div>
 

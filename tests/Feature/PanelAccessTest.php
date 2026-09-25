@@ -17,12 +17,21 @@ class PanelAccessTest extends TestCase
         $this->get('/student')->assertRedirect('/student/login');
     }
 
-    public function test_active_admin_can_only_access_admin_panel(): void
+    public function test_active_admin_is_sent_to_student_login_when_switching_panels(): void
     {
         $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)->get('/admin')->assertSuccessful();
-        $this->actingAs($admin)->get('/student')->assertForbidden();
+        $this->actingAs($admin)->get('/student')->assertRedirect('/student/login');
+        $this->assertGuest();
+    }
+
+    public function test_active_admin_can_open_student_login_to_switch_accounts(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)->get('/student/login')->assertSuccessful();
+        $this->assertGuest();
     }
 
     public function test_active_student_can_only_access_student_panel(): void

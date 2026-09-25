@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Questions\Pages;
 
 use App\Filament\Resources\Questions\QuestionResource;
 use App\Models\Course;
+use App\QuestionImports\ParsedOption;
 use App\QuestionImports\ParsedQuestion;
 use App\QuestionImports\QuestionDuplicateDetector;
 use App\QuestionImports\QuestionFileParser;
@@ -34,6 +35,12 @@ class ImportQuestions extends Page
 
     /** @var list<string> */
     public array $previewErrors = [];
+
+    /** @var list<string> */
+    public array $sourceErrors = [];
+
+    /** @var list<string> */
+    public array $skippedDuplicates = [];
 
     public bool $hasPreview = false;
 
@@ -95,32 +102,26 @@ class ImportQuestions extends Page
     {
         $data = $this->form->getState();
         $course = Course::active()->findOrFail($data['course_id']);
-        $result = $this->withDuplicateErrors(
-            $this->parseUploadedFile($parser, $data['file']),
-            $course,
-            $duplicateDetector,
-        );
+        $result = $this->parseUploadedFile($parser, $data['file']);
+        $filtered = $duplicateDetector->filter($course, $result->questions);
 
-        $this->setPreview($result->questions, $result->errors);
+        $this->sourceErrors = $result->errors;
+        $this->skippedDuplicates = $filtered->skipped;
+        $this->setPreview($filtered->questions);
+        $this->refreshPreviewErrors($course, $duplicateDetector);
     }
 
     public function import(
-        QuestionFileParser $parser,
         QuestionImporter $importer,
         QuestionDuplicateDetector $duplicateDetector,
     ): void {
-        $data = $this->form->getState();
-        $course = Course::active()->findOrFail($data['course_id']);
-        $result = $this->withDuplicateErrors(
-            $this->parseUploadedFile($parser, $data['file']),
-            $course,
-            $duplicateDetector,
-        );
-        $this->setPreview($result->questions, $result->errors);
+        $course = $this->previewCourse();
+        $result = $this->previewResult($course, $duplicateDetector);
+        $this->previewErrors = $result->errors;
 
         if (! $result->isValid() || $result->questions === []) {
             Notification::make()
-                ->title('Resolve the file errors before importing')
+                ->title('Resolve the preview errors before importing')
                 ->danger()
                 ->send();
 
@@ -135,6 +136,28 @@ class ImportQuestions extends Page
             ->send();
 
         $this->redirect(QuestionResource::getUrl('index'));
+    }
+
+    public function validatePreview(QuestionDuplicateDetector $duplicateDetector): void
+    {
+        $result = $this->previewResult($this->previewCourse(), $duplicateDetector);
+        $this->previewErrors = $result->errors;
+
+        Notification::make()
+            ->title($result->isValid() ? 'Preview is ready to import' : 'Some questions still need attention')
+            ->color($result->isValid() ? 'success' : 'danger')
+            ->send();
+    }
+
+    public function removePreviewQuestion(int $index, QuestionDuplicateDetector $duplicateDetector): void
+    {
+        if (! array_key_exists($index, $this->previewQuestions)) {
+            return;
+        }
+
+        unset($this->previewQuestions[$index]);
+        $this->previewQuestions = array_values($this->previewQuestions);
+        $this->refreshPreviewErrors($this->previewCourse(), $duplicateDetector);
     }
 
     public function downloadTextTemplate(QuestionImportTemplate $template): StreamedResponse
@@ -164,37 +187,83 @@ class ImportQuestions extends Page
         return $parser->parse($file->getRealPath(), $file->getClientOriginalName());
     }
 
-    private function withDuplicateErrors(
-        QuestionImportResult $result,
-        Course $course,
-        QuestionDuplicateDetector $duplicateDetector,
-    ): QuestionImportResult {
-        if ($result->questions === []) {
-            return $result;
-        }
-
-        return new QuestionImportResult(
-            $result->questions,
-            [...$result->errors, ...$duplicateDetector->errors($course, $result->questions)],
-        );
-    }
-
-    /**
-     * @param  list<ParsedQuestion>  $questions
-     * @param  list<string>  $errors
-     */
-    private function setPreview(array $questions, array $errors): void
+    /** @param list<ParsedQuestion> $questions */
+    private function setPreview(array $questions): void
     {
         $this->previewQuestions = array_map(fn (ParsedQuestion $question): array => [
             'text' => $question->text,
             'explanation' => $question->explanation,
+            'correct_label' => collect($question->options)->first(
+                fn (ParsedOption $option): bool => $option->isCorrect,
+            )?->label,
             'options' => array_map(fn ($option): array => [
                 'label' => $option->label,
                 'text' => $option->text,
-                'is_correct' => $option->isCorrect,
             ], $question->options),
         ], $questions);
-        $this->previewErrors = $errors;
         $this->hasPreview = true;
+    }
+
+    private function previewCourse(): Course
+    {
+        return Course::active()->findOrFail(data_get($this->data, 'course_id'));
+    }
+
+    private function refreshPreviewErrors(Course $course, QuestionDuplicateDetector $duplicateDetector): void
+    {
+        $this->previewErrors = $this->previewResult($course, $duplicateDetector)->errors;
+    }
+
+    private function previewResult(Course $course, QuestionDuplicateDetector $duplicateDetector): QuestionImportResult
+    {
+        $questions = [];
+        $errors = $this->sourceErrors;
+
+        foreach ($this->previewQuestions as $index => $question) {
+            $number = $index + 1;
+            $text = trim((string) ($question['text'] ?? ''));
+            $explanation = trim((string) ($question['explanation'] ?? ''));
+            $correctLabel = strtoupper(trim((string) ($question['correct_label'] ?? '')));
+            $options = [];
+            $labels = [];
+
+            if ($text === '') {
+                $errors[] = "Question {$number}: the question text is required.";
+            }
+
+            foreach (($question['options'] ?? []) as $option) {
+                $label = strtoupper(trim((string) ($option['label'] ?? '')));
+                $optionText = trim((string) ($option['text'] ?? ''));
+
+                if ($label === '' || $optionText === '') {
+                    $errors[] = "Question {$number}: every answer choice must have text.";
+
+                    continue;
+                }
+
+                $labels[] = $label;
+                $options[] = new ParsedOption($label, $optionText, $label === $correctLabel);
+            }
+
+            if (count($options) < 2) {
+                $errors[] = "Question {$number}: at least two answer choices are required.";
+            }
+
+            if ($correctLabel === '' || ! in_array($correctLabel, $labels, true)) {
+                $errors[] = "Question {$number}: select the correct answer.";
+            }
+
+            $questions[] = new ParsedQuestion(
+                $text,
+                $options,
+                $explanation !== '' ? $explanation : null,
+            );
+        }
+
+        if ($questions !== []) {
+            $errors = [...$errors, ...$duplicateDetector->errors($course, $questions)];
+        }
+
+        return new QuestionImportResult($questions, array_values(array_unique($errors)));
     }
 }

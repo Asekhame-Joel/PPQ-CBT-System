@@ -117,6 +117,31 @@ class StudentResourceTest extends TestCase
         $this->assertFalse($access->fresh()->is_active);
     }
 
+    public function test_admin_can_unlock_a_course_from_the_student_list(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create(['level_id' => $student->level_id]);
+        $course->departments()->attach($student->department_id);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(ListStudents::class)
+            ->callAction(TestAction::make('unlockCourse')->table($student), [
+                'course_id' => $course->id,
+                'expires_at' => null,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertDatabaseHas('course_access', [
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'access_source' => AccessSource::Admin->value,
+            'expires_at' => null,
+            'is_active' => true,
+        ]);
+    }
+
     public function test_payment_access_cannot_be_revoked_from_student_management(): void
     {
         $admin = User::factory()->admin()->create();

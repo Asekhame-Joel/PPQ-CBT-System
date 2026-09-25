@@ -21,49 +21,42 @@
             },
         }"
         x-init="tick(); timer = setInterval(() => tick(), 1000)"
-        class="ef-exam-shell grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]"
+        class="ef-exam-shell"
     >
-        <div class="space-y-6">
-            <x-filament::section>
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Question {{ $currentPosition }} of {{ $questionCount }}
-                        </p>
-                        <p class="mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Answers are saved automatically.
-                        </p>
-                    </div>
-
-                    <div
-                        class="ef-timer bg-gray-950 px-4 py-2 font-mono text-xl font-bold text-white"
-                        :class="remaining <= 60 ? 'bg-danger-600' : 'bg-gray-950'"
-                        aria-live="polite"
-                    >
-                        <span x-text="format()">--:--</span>
-                    </div>
+        <div class="ef-exam-main">
+            <section class="ef-exam-status">
+                <div class="ef-exam-status-copy">
+                    <span class="ef-exam-kicker">Question {{ $currentPosition }} of {{ $questionCount }}</span>
+                    <strong>{{ $courseCode }} practice exam</strong>
+                    <span>Choose one answer. Your selection is saved automatically.</span>
                 </div>
-            </x-filament::section>
+
+                <div class="ef-exam-clock" :class="remaining <= 60 ? 'is-urgent' : ''" aria-live="polite">
+                    <span>Time remaining</span>
+                    <strong x-text="format()">--:--</strong>
+                </div>
+
+                <div class="ef-progress-track" aria-hidden="true">
+                    <span style="width: {{ ($currentPosition / max($questionCount, 1)) * 100 }}%"></span>
+                </div>
+            </section>
 
             @php
                 $question = $this->currentQuestion;
                 $selectedOptionId = $question->answer?->selected_option_id;
             @endphp
 
-            <x-filament::section>
+            <section class="ef-question-card">
                 <fieldset x-bind:disabled="remaining === 0">
-                    <legend class="text-lg font-semibold leading-7 text-gray-950 dark:text-white">
-                        {{ $question->question_snapshot }}
-                    </legend>
+                    <legend><span class="ef-question-number">{{ $currentPosition }}</span><span>{{ $question->question_snapshot }}</span></legend>
 
-                    <div class="mt-6 space-y-3">
+                    <div class="ef-answer-list">
                         @foreach ($question->options_snapshot as $index => $option)
                             <label
                                 wire:key="option-{{ $question->id }}-{{ $option['id'] }}"
                                 @class([
-                                    'flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition',
-                                    'border-primary-500 bg-primary-50 dark:bg-primary-400/10' => (int) $selectedOptionId === (int) $option['id'],
-                                    'border-gray-200 hover:border-primary-300 dark:border-white/10' => (int) $selectedOptionId !== (int) $option['id'],
+                                    'ef-answer-option',
+                                    'is-selected' => (int) $selectedOptionId === (int) $option['id'],
                                 ])
                             >
                                 <input
@@ -72,19 +65,17 @@
                                     value="{{ $option['id'] }}"
                                     @checked((int) $selectedOptionId === (int) $option['id'])
                                     wire:click="selectAnswer({{ $question->id }}, {{ (int) $option['id'] }})"
-                                    class="mt-1 border-gray-300 text-primary-600 focus:ring-primary-600"
                                 >
-                                <span class="text-sm text-gray-800 dark:text-gray-200">
-                                    <span class="mr-1 font-semibold">{{ chr(65 + $index) }}.</span>
-                                    {{ $option['text'] }}
-                                </span>
+                                <span class="ef-answer-letter">{{ chr(65 + $index) }}</span>
+                                <span class="ef-answer-text">{{ $option['text'] }}</span>
+                                <span class="ef-answer-check">✓</span>
                             </label>
                         @endforeach
                     </div>
                 </fieldset>
-            </x-filament::section>
+            </section>
 
-            <div class="flex items-center justify-between gap-3">
+            <div class="ef-exam-navigation">
                 <x-filament::button
                     wire:click="previousQuestion"
                     color="gray"
@@ -105,18 +96,21 @@
             </div>
         </div>
 
-        <aside class="space-y-4">
-            <x-filament::section heading="Questions" icon="heroicon-o-squares-2x2">
-                <div class="grid grid-cols-5 gap-2">
+        <aside class="ef-exam-sidebar">
+            <section class="ef-palette-card">
+                <div class="ef-palette-heading">
+                    <div><strong>Questions</strong><span>Jump to any question</span></div>
+                    <span>{{ $this->questionStates->filter(fn ($state) => filled($state->answer?->selected_option_id))->count() }}/{{ $questionCount }}</span>
+                </div>
+                <div class="ef-question-palette">
                     @foreach ($this->questionStates as $questionState)
                         <button
                             type="button"
                             wire:click="goTo({{ $questionState->position }})"
                             @class([
-                                'aspect-square rounded-lg text-sm font-semibold transition',
-                                'ring-2 ring-primary-600 ring-offset-2 dark:ring-offset-gray-900' => $questionState->position === $currentPosition,
-                                'bg-success-600 text-white' => filled($questionState->answer?->selected_option_id),
-                                'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-200' => blank($questionState->answer?->selected_option_id),
+                                'ef-palette-number',
+                                'is-current' => $questionState->position === $currentPosition,
+                                'is-answered' => filled($questionState->answer?->selected_option_id),
                             ])
                             aria-label="Go to question {{ $questionState->position }}"
                         >
@@ -124,13 +118,12 @@
                         </button>
                     @endforeach
                 </div>
-            </x-filament::section>
+                <div class="ef-palette-legend"><span><i class="answered"></i>Answered</span><span><i class="current"></i>Current</span></div>
+            </section>
 
-            <x-filament::section>
-                <div class="space-y-3">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Review the question palette before submitting. Unanswered questions receive no mark.
-                    </p>
+            <section class="ef-submit-card">
+                    <strong>Ready to finish?</strong>
+                    <p>Review unanswered questions before submitting. You cannot change answers afterwards.</p>
 
                     <x-filament::button
                         wire:click="submitAttempt"
@@ -142,8 +135,7 @@
                     >
                         Submit practice
                     </x-filament::button>
-                </div>
-            </x-filament::section>
+            </section>
         </aside>
     </div>
 </x-filament-panels::page>

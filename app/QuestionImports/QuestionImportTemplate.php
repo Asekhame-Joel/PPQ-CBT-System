@@ -16,6 +16,7 @@ B. Abuja
 C. Kano
 D. Ibadan
 ANSWER: B
+EXPLANATION: Abuja is the capital city of Nigeria.
 
 Which data structure follows First In First Out?
 A. Stack
@@ -23,6 +24,7 @@ B. Tree
 C. Queue
 D. Graph
 ANSWER: C
+EXPLANATION: A queue processes items in first-in, first-out order.
 TEXT;
     }
 

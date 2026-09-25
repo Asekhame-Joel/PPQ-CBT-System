@@ -24,7 +24,7 @@ class QuestionImportTest extends TestCase
         $course = Course::factory()->create();
         $file = UploadedFile::fake()->createWithContent(
             'questions.txt',
-            "What is the capital of Nigeria?\nA. Lagos\nB. Abuja\nANSWER: B\n\n2 + 2 equals?\nA. 3\nB. 4\nANSWER: B",
+            "What is the capital of Nigeria?\nA. Lagos\nB. Abuja\nANSWER: B\nEXPLANATION: Abuja is Nigeria's capital city.\n\n2 + 2 equals?\nA. 3\nB. 4\nANSWER: B\nEXPLANATION: Adding two and two gives four.",
         );
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -38,6 +38,7 @@ class QuestionImportTest extends TestCase
             ->assertHasNoFormErrors()
             ->assertSet('hasPreview', true)
             ->assertCount('previewQuestions', 2)
+            ->assertSet('previewQuestions.0.explanation', "Abuja is Nigeria's capital city.")
             ->assertSet('previewErrors', []);
 
         $component
@@ -84,7 +85,7 @@ class QuestionImportTest extends TestCase
         $this->assertDatabaseCount('questions', 0);
     }
 
-    public function test_existing_course_question_is_flagged_and_not_imported_again(): void
+    public function test_existing_course_question_is_skipped_and_not_imported_again(): void
     {
         $admin = User::factory()->admin()->create();
         $course = Course::factory()->create(['code' => 'CSC101']);
@@ -105,11 +106,80 @@ class QuestionImportTest extends TestCase
                 'file' => $file,
             ])
             ->call('preview')
-            ->assertSet('previewErrors.0', 'Question 1: this question already exists in CSC101.')
+            ->assertSet('previewErrors', [])
+            ->assertSet('previewQuestions', [])
+            ->assertSet('skippedDuplicates.0', 'Question 1 was skipped because it already exists in CSC101.')
             ->call('import')
             ->assertNoRedirect();
 
         $this->assertDatabaseCount('questions', 1);
+    }
+
+    public function test_duplicate_questions_are_automatically_excluded_from_the_preview(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $file = UploadedFile::fake()->createWithContent(
+            'questions.txt',
+            "Which city is Nigeria's capital?\nA. Lagos\nB. Abuja\nANSWER: B\n\nWhich city is Nigeria's capital?\nA. Kano\nB. Abuja\nANSWER: B",
+        );
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(ImportQuestions::class)
+            ->fillForm([
+                'course_id' => $course->id,
+                'file' => $file,
+            ])
+            ->call('preview')
+            ->assertCount('previewQuestions', 1)
+            ->assertSet('previewErrors', [])
+            ->assertSet('skippedDuplicates.0', 'Question 2 was skipped because it duplicates question 1 in this file.')
+            ->call('import')
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('questions', 1);
+    }
+
+    public function test_admin_can_edit_the_preview_before_importing(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $file = UploadedFile::fake()->createWithContent(
+            'questions.txt',
+            "Old question text?\nA. Old first answer\nB. Old second answer\nANSWER: A\nEXPLANATION: Old explanation.",
+        );
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(ImportQuestions::class)
+            ->fillForm([
+                'course_id' => $course->id,
+                'file' => $file,
+            ])
+            ->call('preview')
+            ->set('previewQuestions.0.text', 'Edited question text?')
+            ->set('previewQuestions.0.options.0.text', 'Edited first answer')
+            ->set('previewQuestions.0.options.1.text', 'Edited correct answer')
+            ->set('previewQuestions.0.correct_label', 'B')
+            ->set('previewQuestions.0.explanation', 'Edited explanation.')
+            ->call('validatePreview')
+            ->assertSet('previewErrors', [])
+            ->call('import')
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('questions', [
+            'question_text' => 'Edited question text?',
+            'explanation' => 'Edited explanation.',
+        ]);
+        $this->assertDatabaseHas('question_options', [
+            'option_text' => 'Edited correct answer',
+            'is_correct' => true,
+        ]);
+        $this->assertDatabaseHas('question_options', [
+            'option_text' => 'Edited first answer',
+            'is_correct' => false,
+        ]);
     }
 
     public function test_downloadable_templates_match_the_supported_import_formats(): void

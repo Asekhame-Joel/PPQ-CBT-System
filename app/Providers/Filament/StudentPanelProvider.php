@@ -2,9 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Student\Pages\Auth\Login;
 use App\Filament\Student\Pages\Auth\Register;
 use App\Filament\Student\Pages\Dashboard;
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\AuthenticateStudentPanel;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -27,7 +28,7 @@ class StudentPanelProvider extends PanelProvider
         return $panel
             ->id('student')
             ->path('student')
-            ->login()
+            ->login(Login::class)
             ->registration(Register::class)
             ->brandName('ExamForge')
             ->darkMode(false)
@@ -64,7 +65,7 @@ class StudentPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticateStudentPanel::class,
             ]);
     }
 }
