@@ -23,8 +23,6 @@ class InitiateCoursePayment
 
     public function handle(User $student, Course $course): PaymentInitialization
     {
-        $this->rateLimiter->ensure($student, 'start-payment', maximumAttempts: 3, decaySeconds: 600);
-
         $eligible = Course::query()
             ->active()
             ->eligibleFor($student)
@@ -42,6 +40,21 @@ class InitiateCoursePayment
                 'course' => 'You already have access to this course.',
             ]);
         }
+
+        $existingPayment = Payment::query()
+            ->where('user_id', $student->id)
+            ->where('course_id', $course->id)
+            ->where('status', PaymentStatus::Pending)
+            ->where('created_at', '>', now()->subMinutes(30))
+            ->latest('id')
+            ->first();
+        $existingAuthorizationUrl = data_get($existingPayment?->provider_response, 'data.authorization_url');
+
+        if (is_string($existingAuthorizationUrl) && $this->isPaystackCheckoutUrl($existingAuthorizationUrl)) {
+            return new PaymentInitialization($existingAuthorizationUrl, $existingPayment->provider_response ?? []);
+        }
+
+        $this->rateLimiter->ensure($student, 'start-payment', maximumAttempts: 3, decaySeconds: 600);
 
         $payment = Payment::query()->create([
             'user_id' => $student->getKey(),
@@ -70,5 +83,13 @@ class InitiateCoursePayment
 
             throw $exception;
         }
+    }
+
+    private function isPaystackCheckoutUrl(string $url): bool
+    {
+        return parse_url($url, PHP_URL_SCHEME) === 'https'
+            && is_string(parse_url($url, PHP_URL_HOST))
+            && (strtolower((string) parse_url($url, PHP_URL_HOST)) === 'paystack.com'
+                || str_ends_with(strtolower((string) parse_url($url, PHP_URL_HOST)), '.paystack.com'));
     }
 }
