@@ -22,7 +22,7 @@ class CheckProductionReadiness extends Command
             'HTTPS application URL' => str_starts_with((string) config('app.url'), 'https://'),
             'Database connection' => $this->databaseIsAvailable(),
             'Redis connection' => $this->redisIsAvailable(),
-            'Redis queue' => config('queue.default') === 'redis',
+            'Managed queue' => in_array(config('queue.default'), ['redis', 'cloud'], true),
             'Redis cache' => config('cache.default') === 'redis',
             'Redis sessions' => config('session.driver') === 'redis',
             'Shared maintenance mode' => config('app.maintenance.driver') === 'cache',

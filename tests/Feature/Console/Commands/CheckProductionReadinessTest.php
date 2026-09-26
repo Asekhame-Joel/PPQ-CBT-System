@@ -62,4 +62,28 @@ class CheckProductionReadinessTest extends TestCase
             ->expectsOutputToContain('ExamForge is not ready for production.')
             ->assertExitCode(Command::FAILURE);
     }
+
+    public function test_command_accepts_laravel_cloud_managed_queues(): void
+    {
+        config()->set([
+            'app.env' => 'production',
+            'app.debug' => false,
+            'app.key' => 'base64:production-key',
+            'app.url' => 'https://examforge.example',
+            'app.maintenance.driver' => 'cache',
+            'queue.default' => 'cloud',
+            'cache.default' => 'redis',
+            'session.driver' => 'redis',
+            'queue.failed.driver' => 'database-uuids',
+            'services.paystack.secret_key' => 'secret-key',
+        ]);
+        $connection = Mockery::mock();
+        $connection->shouldReceive('ping')->once()->andReturn(true);
+        Redis::shouldReceive('connection')->once()->andReturn($connection);
+
+        $this->artisan('exam:check-production')
+            ->expectsOutputToContain('PASS  Managed queue')
+            ->expectsOutputToContain('ExamForge production checks passed.')
+            ->assertExitCode(Command::SUCCESS);
+    }
 }
