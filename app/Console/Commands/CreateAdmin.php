@@ -12,7 +12,8 @@ class CreateAdmin extends Command
     protected $signature = 'exam:create-admin
         {--name= : Administrator name}
         {--email= : Administrator email address}
-        {--phone= : Administrator phone number}';
+        {--phone= : Administrator phone number}
+        {--password= : Administrator password (prefer EXAM_ADMIN_PASSWORD secret in production)}';
 
     protected $description = 'Create the first active ExamForge administrator';
 
@@ -21,8 +22,12 @@ class CreateAdmin extends Command
         $name = (string) ($this->option('name') ?: $this->ask('Administrator name'));
         $email = strtolower((string) ($this->option('email') ?: $this->ask('Administrator email address')));
         $phone = $this->option('phone');
-        $password = (string) $this->secret('Password');
-        $password_confirmation = (string) $this->secret('Confirm password');
+        $cloudPassword = getenv('EXAM_ADMIN_PASSWORD');
+        $hasCloudPassword = is_string($cloudPassword) && $cloudPassword !== '';
+        $password = (string) ($this->option('password') ?: ($hasCloudPassword ? $cloudPassword : $this->secret('Password')));
+        $password_confirmation = filled($this->option('password')) || $hasCloudPassword
+            ? $password
+            : (string) $this->secret('Confirm password');
 
         $validator = Validator::make(compact('name', 'email', 'phone', 'password', 'password_confirmation'), [
             'name' => ['required', 'string', 'max:150'],

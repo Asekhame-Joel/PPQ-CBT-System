@@ -52,6 +52,25 @@ class CreateAdminTest extends TestCase
         $this->assertSame(1, User::where('email', 'admin@example.com')->count());
     }
 
+    public function test_command_can_use_a_production_secret_without_interaction(): void
+    {
+        putenv('EXAM_ADMIN_PASSWORD=cloud-admin-password');
+
+        try {
+            $this->artisan('exam:create-admin', [
+                '--name' => 'Cloud Administrator',
+                '--email' => 'cloud.admin@example.com',
+            ])
+                ->expectsOutputToContain('Administrator [cloud.admin@example.com] created successfully.')
+                ->assertExitCode(Command::SUCCESS);
+        } finally {
+            putenv('EXAM_ADMIN_PASSWORD');
+        }
+
+        $admin = User::where('email', 'cloud.admin@example.com')->sole();
+        $this->assertTrue(Hash::check('cloud-admin-password', $admin->password));
+    }
+
     public function test_command_rejects_mismatched_password_confirmation(): void
     {
         $this->artisan('exam:create-admin', [
