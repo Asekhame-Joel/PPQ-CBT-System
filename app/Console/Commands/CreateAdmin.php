@@ -22,7 +22,7 @@ class CreateAdmin extends Command
         $name = (string) ($this->option('name') ?: $this->ask('Administrator name'));
         $email = strtolower((string) ($this->option('email') ?: $this->ask('Administrator email address')));
         $phone = $this->option('phone');
-        $cloudPassword = getenv('EXAM_ADMIN_PASSWORD');
+        $cloudPassword = env('EXAM_ADMIN_PASSWORD');
         $hasCloudPassword = is_string($cloudPassword) && $cloudPassword !== '';
         $password = (string) ($this->option('password') ?: ($hasCloudPassword ? $cloudPassword : $this->secret('Password')));
         $password_confirmation = filled($this->option('password')) || $hasCloudPassword
