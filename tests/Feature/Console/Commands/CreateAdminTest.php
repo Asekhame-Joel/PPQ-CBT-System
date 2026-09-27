@@ -71,6 +71,20 @@ class CreateAdminTest extends TestCase
         $this->assertTrue(Hash::check('cloud-admin-password', $admin->password));
     }
 
+    public function test_command_reports_a_missing_production_secret_without_prompting_for_a_password(): void
+    {
+        config()->set('app.env', 'production');
+
+        $this->artisan('exam:create-admin', [
+            '--name' => 'Cloud Administrator',
+            '--email' => 'cloud.admin@example.com',
+        ])
+            ->expectsOutputToContain('EXAM_ADMIN_PASSWORD is unavailable.')
+            ->assertExitCode(Command::FAILURE);
+
+        $this->assertDatabaseMissing('users', ['email' => 'cloud.admin@example.com']);
+    }
+
     public function test_command_rejects_mismatched_password_confirmation(): void
     {
         $this->artisan('exam:create-admin', [

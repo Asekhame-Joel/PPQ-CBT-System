@@ -24,8 +24,16 @@ class CreateAdmin extends Command
         $phone = $this->option('phone');
         $cloudPassword = env('EXAM_ADMIN_PASSWORD');
         $hasCloudPassword = is_string($cloudPassword) && $cloudPassword !== '';
-        $password = (string) ($this->option('password') ?: ($hasCloudPassword ? $cloudPassword : $this->secret('Password')));
-        $password_confirmation = filled($this->option('password')) || $hasCloudPassword
+        $providedPassword = $this->option('password');
+
+        if (blank($providedPassword) && ! $hasCloudPassword && config('app.env') === 'production') {
+            $this->error('EXAM_ADMIN_PASSWORD is unavailable. Link the secret to this environment, deploy, then run this command again.');
+
+            return self::FAILURE;
+        }
+
+        $password = (string) ($providedPassword ?: ($hasCloudPassword ? $cloudPassword : $this->secret('Password')));
+        $password_confirmation = filled($providedPassword) || $hasCloudPassword
             ? $password
             : (string) $this->secret('Confirm password');
 
