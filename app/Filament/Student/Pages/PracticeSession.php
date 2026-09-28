@@ -61,6 +61,18 @@ class PracticeSession extends Page
 
     /** @return Collection<int, AttemptQuestion> */
     #[Computed]
+    public function questions(): Collection
+    {
+        return AttemptQuestion::query()
+            ->select(['id', 'quiz_attempt_id', 'position', 'question_snapshot', 'options_snapshot'])
+            ->where('quiz_attempt_id', $this->attemptId)
+            ->with('answer:id,attempt_question_id,selected_option_id')
+            ->orderBy('position')
+            ->get();
+    }
+
+    /** @return Collection<int, AttemptQuestion> */
+    #[Computed]
     public function questionStates(): Collection
     {
         return AttemptQuestion::query()

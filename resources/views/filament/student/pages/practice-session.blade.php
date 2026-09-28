@@ -1,10 +1,24 @@
 <x-filament-panels::page>
     <x-student-ui />
 
+    @php
+        $questions = $this->questions;
+        $answers = $questions->mapWithKeys(fn ($question) => [$question->id => $question->answer?->selected_option_id]);
+    @endphp
+
     <div
         x-data="{
+            currentPosition: {{ $currentPosition }},
+            questionCount: {{ $questionCount }},
+            answers: @js($answers),
             remaining: Math.max(0, {{ $expiresAtTimestamp }} - Math.floor(Date.now() / 1000)),
             timer: null,
+            goTo(position) {
+                if (position >= 1 && position <= this.questionCount) {
+                    this.currentPosition = position;
+                    window.scrollTo({ top: 0, behavior: 'auto' });
+                }
+            },
             tick() {
                 this.remaining = Math.max(0, {{ $expiresAtTimestamp }} - Math.floor(Date.now() / 1000));
 
@@ -23,10 +37,10 @@
         x-init="tick(); timer = setInterval(() => tick(), 1000)"
         class="ef-exam-shell"
     >
-        <div class="ef-exam-main">
+        <div class="ef-exam-main" wire:ignore>
             <section class="ef-exam-status">
                 <div class="ef-exam-status-copy">
-                    <span class="ef-exam-kicker">Question {{ $currentPosition }} of {{ $questionCount }}</span>
+                    <span class="ef-exam-kicker">Question <span x-text="currentPosition"></span> of {{ $questionCount }}</span>
                     <strong>{{ $courseCode }} practice exam</strong>
                     <span>Choose one answer. Your selection is saved automatically.</span>
                 </div>
@@ -37,59 +51,53 @@
                 </div>
 
                 <div class="ef-progress-track" aria-hidden="true">
-                    <span style="width: {{ ($currentPosition / max($questionCount, 1)) * 100 }}%"></span>
+                    <span :style="`width: ${(currentPosition / questionCount) * 100}%`"></span>
                 </div>
             </section>
 
-            @php
-                $question = $this->currentQuestion;
-                $selectedOptionId = $question->answer?->selected_option_id;
-            @endphp
+            @foreach ($questions as $question)
+                <section x-show="currentPosition === {{ $question->position }}" x-cloak class="ef-question-card">
+                    <fieldset x-bind:disabled="remaining === 0">
+                        <legend><span class="ef-question-number">{{ $question->position }}</span><span>{{ $question->question_snapshot }}</span></legend>
 
-            <section class="ef-question-card">
-                <fieldset x-bind:disabled="remaining === 0">
-                    <legend><span class="ef-question-number">{{ $currentPosition }}</span><span>{{ $question->question_snapshot }}</span></legend>
-
-                    <div class="ef-answer-list">
-                        @foreach ($question->options_snapshot as $index => $option)
-                            <label
-                                wire:key="option-{{ $question->id }}-{{ $option['id'] }}"
-                                @class([
-                                    'ef-answer-option',
-                                    'is-selected' => (int) $selectedOptionId === (int) $option['id'],
-                                ])
-                            >
-                                <input
-                                    type="radio"
-                                    name="attempt-question-{{ $question->id }}"
-                                    value="{{ $option['id'] }}"
-                                    @checked((int) $selectedOptionId === (int) $option['id'])
-                                    wire:click="selectAnswer({{ $question->id }}, {{ (int) $option['id'] }})"
+                        <div class="ef-answer-list">
+                            @foreach ($question->options_snapshot as $index => $option)
+                                <label
+                                    class="ef-answer-option"
+                                    :class="{ 'is-selected': Number(answers[{{ $question->id }}]) === {{ (int) $option['id'] }} }"
                                 >
-                                <span class="ef-answer-letter">{{ chr(65 + $index) }}</span>
-                                <span class="ef-answer-text">{{ $option['text'] }}</span>
-                                <span class="ef-answer-check">✓</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
-            </section>
+                                    <input
+                                        type="radio"
+                                        name="attempt-question-{{ $question->id }}"
+                                        value="{{ $option['id'] }}"
+                                        :checked="Number(answers[{{ $question->id }}]) === {{ (int) $option['id'] }}"
+                                        @click="answers[{{ $question->id }}] = {{ (int) $option['id'] }}; $wire.selectAnswer({{ $question->id }}, {{ (int) $option['id'] }})"
+                                    >
+                                    <span class="ef-answer-letter">{{ chr(65 + $index) }}</span>
+                                    <span class="ef-answer-text">{{ $option['text'] }}</span>
+                                    <span class="ef-answer-check">✓</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </fieldset>
+                </section>
+            @endforeach
 
             <div class="ef-exam-navigation">
                 <x-filament::button
-                    wire:click="previousQuestion"
+                    x-on:click="goTo(currentPosition - 1)"
                     color="gray"
                     icon="heroicon-o-arrow-left"
-                    :disabled="$currentPosition === 1"
+                    x-bind:disabled="currentPosition === 1"
                 >
                     Previous
                 </x-filament::button>
 
                 <x-filament::button
-                    wire:click="nextQuestion"
+                    x-on:click="goTo(currentPosition + 1)"
                     icon="heroicon-o-arrow-right"
                     icon-position="after"
-                    :disabled="$currentPosition === $questionCount"
+                    x-bind:disabled="currentPosition === questionCount"
                 >
                     Next
                 </x-filament::button>
@@ -100,21 +108,21 @@
             <section class="ef-palette-card">
                 <div class="ef-palette-heading">
                     <div><strong>Questions</strong><span>Jump to any question</span></div>
-                    <span>{{ $this->questionStates->filter(fn ($state) => filled($state->answer?->selected_option_id))->count() }}/{{ $questionCount }}</span>
+                    <span x-text="Object.values(answers).filter(Boolean).length + '/{{ $questionCount }}'"></span>
                 </div>
                 <div class="ef-question-palette">
-                    @foreach ($this->questionStates as $questionState)
+                    @foreach ($questions as $question)
                         <button
                             type="button"
-                            wire:click="goTo({{ $questionState->position }})"
-                            @class([
-                                'ef-palette-number',
-                                'is-current' => $questionState->position === $currentPosition,
-                                'is-answered' => filled($questionState->answer?->selected_option_id),
-                            ])
-                            aria-label="Go to question {{ $questionState->position }}"
+                            x-on:click="goTo({{ $question->position }})"
+                            class="ef-palette-number"
+                            :class="{
+                                'is-current': currentPosition === {{ $question->position }},
+                                'is-answered': Boolean(answers[{{ $question->id }}]),
+                            }"
+                            aria-label="Go to question {{ $question->position }}"
                         >
-                            {{ $questionState->position }}
+                            {{ $question->position }}
                         </button>
                     @endforeach
                 </div>
