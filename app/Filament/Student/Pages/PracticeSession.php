@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Renderless;
 
 class PracticeSession extends Page
 {
@@ -83,6 +84,7 @@ class PracticeSession extends Page
             ->get();
     }
 
+    #[Renderless]
     public function selectAnswer(int $attemptQuestionId, int $selectedOptionId, SaveAttemptAnswer $saveAnswer): void
     {
         $saveAnswer->handle(
