@@ -40,22 +40,25 @@
         </x-filament::section>
 
         <x-filament::section heading="Recent results" icon="heroicon-o-clock">
-            <div class="space-y-3">
+            <div class="ef-recent-results">
                 @forelse ($this->recentAttempts as $attempt)
                     <a
                         href="{{ \App\Filament\Student\Pages\PracticeResult::getUrl(['attempt' => $attempt], panel: 'student') }}"
-                        class="flex items-center justify-between gap-4 rounded-xl border border-gray-200 p-4 transition hover:border-primary-400 dark:border-white/10"
+                        class="ef-recent-result"
                     >
-                        <div>
-                            <p class="font-semibold text-gray-950 dark:text-white">
-                                {{ $attempt->course->code }} · {{ $attempt->course->name }}
-                            </p>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                {{ $attempt->submitted_at->toFormattedDateString() }}
-                            </p>
+                        <span @class([
+                            'ef-recent-score',
+                            'is-strong' => (float) $attempt->score_percentage >= 50,
+                        ])>
+                            {{ number_format((float) $attempt->score_percentage, 0) }}<small>%</small>
+                        </span>
+                        <div class="ef-recent-result-copy">
+                            <span>{{ $attempt->course->code }}</span>
+                            <strong>{{ $attempt->course->name }}</strong>
+                            <small>{{ $attempt->correct_count }} correct · {{ $attempt->question_count }} questions · {{ $attempt->submitted_at->diffForHumans() }}</small>
                         </div>
-                        <span class="text-lg font-bold text-primary-600 dark:text-primary-400">
-                            {{ number_format((float) $attempt->score_percentage, 2) }}%
+                        <span class="ef-recent-review">
+                            Review <span aria-hidden="true">→</span>
                         </span>
                     </a>
                 @empty

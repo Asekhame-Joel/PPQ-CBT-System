@@ -83,6 +83,17 @@
         .ef-submit-card { display:grid; gap:.65rem; }
         .ef-submit-card p { color:#64748b; font-size:.78rem; line-height:1.5; }
         .ef-submit-card .fi-btn { width:100%; }
+        .ef-submit-dialog-backdrop { position:fixed; z-index:100; inset:0; display:grid; place-items:center; padding:1rem; background:rgba(15,23,42,.5); backdrop-filter:blur(5px); }
+        .ef-submit-dialog { width:min(100%,27rem); padding:1.75rem; border:1px solid rgba(255,255,255,.85); border-radius:1.5rem; background:#fff; box-shadow:0 30px 70px -30px rgba(15,23,42,.7); text-align:center; }
+        .ef-submit-dialog-icon { display:grid; width:3.25rem; height:3.25rem; margin:0 auto .9rem; place-items:center; border-radius:1rem; color:#fff; background:linear-gradient(135deg,#16a34a,#22c55e); font-size:1.35rem; font-weight:900; }
+        .ef-submit-dialog h2 { margin-top:.35rem; color:#172554; font-size:1.35rem; font-weight:850; } .ef-submit-dialog > p:last-of-type { margin-top:.75rem; color:#64748b; font-size:.88rem; line-height:1.6; }
+        .ef-submit-dialog-actions { display:flex; justify-content:center; gap:.7rem; margin-top:1.4rem; } .ef-submit-dialog-actions .fi-btn { flex:1; }
+        .ef-recent-results { display:grid; gap:.75rem; }
+        .ef-recent-result { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:1rem; align-items:center; padding:1rem; border:1px solid #e3e8f5; border-radius:1rem; background:linear-gradient(135deg,#fff,#f8fbff); transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease; }
+        .ef-recent-result:hover { transform:translateY(-1px); border-color:#a5bdf5; box-shadow:0 12px 28px -24px rgba(37,99,235,.8); }
+        .ef-recent-score { display:grid; width:3.35rem; height:3.35rem; place-items:center; border-radius:1rem; color:#b91c1c; background:#fef2f2; font-size:1.05rem; font-weight:850; line-height:1; } .ef-recent-score small { margin-top:-.35rem; font-size:.62rem; } .ef-recent-score.is-strong { color:#166534; background:#ecfdf3; }
+        .ef-recent-result-copy { display:grid; min-width:0; gap:.15rem; } .ef-recent-result-copy > span { color:#2563eb; font-size:.68rem; font-weight:850; letter-spacing:.05em; } .ef-recent-result-copy strong { overflow:hidden; color:#172554; font-size:.88rem; font-weight:800; text-overflow:ellipsis; white-space:nowrap; } .ef-recent-result-copy small { color:#64748b; font-size:.72rem; }
+        .ef-recent-review { color:#2563eb; font-size:.78rem; font-weight:800; white-space:nowrap; }
         .ef-result-score { display:grid; width:9rem; height:9rem; place-items:center; border-radius:50%; color:#fff; background:var(--ef-brand); box-shadow:0 0 0 9px var(--ef-soft); }
         .ef-setup-shell,.ef-result-shell { display:grid; gap:1.25rem; }
         .ef-setup-course { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:1rem; align-items:center; padding:1.25rem; border:1px solid #e3e8f5; border-radius:1.35rem; background:#fff; box-shadow:0 18px 45px -32px rgba(30,41,99,.42); }
@@ -143,7 +154,7 @@
         @media (min-width:640px) { .ef-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
         @media (min-width:1280px) { .ef-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
         @media (min-width:1024px) { .ef-exam-shell { grid-template-columns:minmax(0,1fr) 18rem; } .ef-exam-sidebar { position:sticky; top:5.5rem; } }
-        @media (max-width:639px) { .ef-exam-status { align-items:stretch; flex-direction:column; } .ef-exam-clock { width:100%; } .ef-question-card { padding:1rem; } .ef-exam-shell .ef-answer-option { grid-template-columns:2.2rem minmax(0,1fr) 1.35rem; padding:.75rem; } .ef-answer-letter { width:2.1rem; height:2.1rem; } }
+        @media (max-width:639px) { .ef-exam-status { align-items:stretch; flex-direction:column; } .ef-exam-clock { width:100%; } .ef-question-card { padding:1rem; } .ef-exam-shell .ef-answer-option { grid-template-columns:2.2rem minmax(0,1fr) 1.35rem; padding:.75rem; } .ef-answer-letter { width:2.1rem; height:2.1rem; } .ef-recent-result { gap:.75rem; padding:.85rem; } .ef-recent-review { display:none; } .ef-submit-dialog-actions { flex-direction:column-reverse; } }
         @media (max-width:520px) { .ef-card-footer { align-items:stretch; flex-direction:column; } .ef-card-footer .fi-btn { width:100%; } }
         @media (max-width:639px) { .ef-setup-course { grid-template-columns:auto 1fr; } .ef-setup-available { grid-column:1/-1; } .ef-setup-actions { display:grid; } .ef-setup-actions .fi-btn { width:100%; } .ef-result-overview { align-items:flex-start; flex-direction:column; } .ef-result-score-wrap { width:100%; justify-content:space-between; } .ef-result-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .ef-review-option { grid-template-columns:2rem minmax(0,1fr); } .ef-review-note { grid-column:2; } }
     </style>

@@ -11,6 +11,7 @@
             currentPosition: {{ $currentPosition }},
             questionCount: {{ $questionCount }},
             answers: @js($answers),
+            showSubmitConfirmation: false,
             remaining: Math.max(0, {{ $expiresAtTimestamp }} - Math.floor(Date.now() / 1000)),
             timer: null,
             goTo(position) {
@@ -94,12 +95,13 @@
                 </x-filament::button>
 
                 <x-filament::button
-                    x-on:click="goTo(currentPosition + 1)"
+                    x-on:click="currentPosition === questionCount ? showSubmitConfirmation = true : goTo(currentPosition + 1)"
                     icon="heroicon-o-arrow-right"
                     icon-position="after"
-                    x-bind:disabled="currentPosition === questionCount"
+                    x-bind:disabled="remaining === 0"
                 >
-                    Next
+                    <span x-show="currentPosition < questionCount">Next</span>
+                    <span x-cloak x-show="currentPosition === questionCount">Submit practice</span>
                 </x-filament::button>
             </div>
         </div>
@@ -134,9 +136,7 @@
                     <p>Review unanswered questions before submitting. You cannot change answers afterwards.</p>
 
                     <x-filament::button
-                        wire:click="submitAttempt"
-                        wire:confirm="Submit this practice now? You will not be able to change your answers."
-                        wire:loading.attr="disabled"
+                        x-on:click="showSubmitConfirmation = true"
                         color="success"
                         icon="heroicon-o-check-circle"
                         class="w-full"
@@ -145,5 +145,26 @@
                     </x-filament::button>
             </section>
         </aside>
+
+        <div
+            x-cloak
+            x-show="showSubmitConfirmation"
+            x-on:keydown.escape.window="showSubmitConfirmation = false"
+            class="ef-submit-dialog-backdrop"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="submit-practice-title"
+        >
+            <div x-show="showSubmitConfirmation" x-transition class="ef-submit-dialog">
+                <span class="ef-submit-dialog-icon">✓</span>
+                <p class="ef-eyebrow">Final check</p>
+                <h2 id="submit-practice-title">Submit your practice?</h2>
+                <p>You have answered <strong x-text="Object.values(answers).filter(Boolean).length"></strong> of {{ $questionCount }} questions. Submitted answers cannot be changed.</p>
+                <div class="ef-submit-dialog-actions">
+                    <x-filament::button x-on:click="showSubmitConfirmation = false" color="gray">Keep reviewing</x-filament::button>
+                    <x-filament::button x-on:click="showSubmitConfirmation = false; $wire.submitAttempt()" color="success" icon="heroicon-o-check-circle">Yes, submit</x-filament::button>
+                </div>
+            </div>
+        </div>
     </div>
 </x-filament-panels::page>

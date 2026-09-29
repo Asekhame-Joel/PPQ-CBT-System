@@ -93,7 +93,8 @@ class StudentDashboardTest extends TestCase
             ->assertSee('CSC101')
             ->assertSee('1 of 2 answered')
             ->assertSee('MTH101')
-            ->assertSee('75.00%');
+            ->assertSee('75')
+            ->assertSee('Review');
 
     }
 }
