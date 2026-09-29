@@ -30,6 +30,7 @@ class StudentPanelProvider extends PanelProvider
             ->path('student')
             ->login(Login::class)
             ->registration(Register::class)
+            ->passwordReset()
             ->brandName('ExamForge')
             ->darkMode(false)
             ->themeSwitcher(false)
