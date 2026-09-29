@@ -3,91 +3,39 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Practise university past questions, track your results, and prepare confidently with ExamForge.">
-    <title>ExamForge · University Past Questions</title>
+    <meta name="description" content="Prepare smarter, practise better, and excel with ExamForge university past questions.">
+    <title>ExamForge · Prepare smarter. Practise better.</title>
     <style>
-        :root { color-scheme:light; --ink:#1e1b4b; --muted:#68677e; --blue:#4f46e5; --blue-dark:#3730a3; --blue-soft:#eef2ff; --line:#dfe7ff; --white:#fff; --shadow:0 24px 70px -45px rgba(30,27,75,.55); }
-        * { box-sizing:border-box; }
-        html { scroll-behavior:smooth; }
-        body { min-width:320px; min-height:100vh; margin:0; color:var(--ink); background:linear-gradient(145deg,#fff 0%,#f6f8ff 52%,#edf5ff 100%); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-        a { color:inherit; text-decoration:none; }
-        .shell { width:min(1120px,calc(100% - 36px)); margin-inline:auto; }
-        header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:24px 0; }
-        .brand { display:flex; align-items:center; gap:12px; font-weight:800; }
-        .mark { display:grid; width:44px; height:44px; place-items:center; border-radius:15px; color:#fff; background:var(--blue); box-shadow:0 12px 28px -14px rgba(79,70,229,.85); font-size:20px; }
-        .header-actions,.hero-actions { display:flex; flex-wrap:wrap; gap:10px; }
-        .btn { display:inline-flex; min-height:48px; align-items:center; justify-content:center; border:1px solid transparent; border-radius:13px; padding:0 19px; font-weight:750; transition:transform .2s ease,background .2s ease; }
-        .btn:hover { transform:translateY(-1px); }
-        .btn-primary { color:#fff; background:var(--blue); }
-        .btn-primary:hover { background:var(--blue-dark); }
-        .btn-secondary { border-color:var(--line); background:rgba(255,255,255,.82); }
-        main { padding:64px 0 80px; }
-        .hero { display:grid; align-items:center; gap:44px; }
-        .eyebrow { color:var(--blue); font-size:12px; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
-        h1 { max-width:760px; margin:13px 0 0; font-size:clamp(40px,7vw,74px); line-height:1.02; letter-spacing:-.055em; }
-        .lead { max-width:650px; margin:22px 0 0; color:var(--muted); font-size:clamp(17px,2.3vw,20px); line-height:1.65; }
-        .hero-actions { margin-top:30px; }
-        .preview { position:relative; padding:24px; border:1px solid rgba(255,255,255,.9); border-radius:28px; background:rgba(255,255,255,.76); box-shadow:var(--shadow); backdrop-filter:blur(20px); }
-        .preview-head { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-bottom:20px; border-bottom:1px solid var(--line); }
-        .course-code,.status { display:inline-flex; border-radius:999px; padding:7px 10px; font-size:12px; font-weight:800; }
-        .course-code { color:var(--blue); background:var(--blue-soft); }
-        .status { color:#16845b; background:#dcfce7; }
-        .question { margin:24px 0 18px; font-size:clamp(20px,3vw,28px); line-height:1.35; }
-        .options { display:grid; gap:10px; }
-        .option { display:flex; align-items:center; gap:12px; min-height:58px; padding:11px 13px; border:1px solid var(--line); border-radius:15px; background:#fff; }
-        .option:first-child { border-color:var(--blue); background:var(--blue-soft); }
-        .letter { display:grid; flex:none; width:34px; height:34px; place-items:center; border-radius:10px; background:#f1f5f9; font-weight:800; }
-        .option:first-child .letter { color:#fff; background:var(--blue); }
-        .features { display:grid; gap:16px; margin-top:72px; }
-        .feature { padding:22px; border:1px solid var(--line); border-radius:22px; background:rgba(255,255,255,.78); box-shadow:var(--shadow); }
-        .feature strong { display:block; font-size:17px; }
-        .feature p { margin:8px 0 0; color:var(--muted); line-height:1.55; }
-        footer { padding:24px 0 34px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }
-        @media (min-width:760px) { .hero { grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr); } .features { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-        @media (max-width:600px) { .shell { width:min(100% - 24px,1120px); } header { padding:16px 0; } .brand span:last-child { display:none; } .header-actions .btn-secondary { display:none; } main { padding-top:38px; } .hero-actions .btn { width:100%; } .preview { padding:17px; border-radius:22px; } }
+        :root { color-scheme:light; --ink:#14245b; --ink-soft:#273a77; --muted:#66708f; --blue:#315cef; --blue-dark:#2449cc; --line:#dce6ff; --green:#16845b; --shadow:0 30px 75px -46px rgba(23,51,133,.5); }
+        * { box-sizing:border-box; } html { scroll-behavior:smooth; }
+        body { min-width:320px; min-height:100vh; margin:0; color:var(--ink); background:linear-gradient(155deg,#fff 0%,#f7f9ff 48%,#eaf3ff 100%); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+        a { color:inherit; text-decoration:none; } .shell { width:min(1140px,calc(100% - 40px)); margin-inline:auto; }
+        header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 0; }
+        .brand { display:flex; align-items:center; gap:11px; color:#111c47; font-size:18px; font-weight:850; letter-spacing:-.03em; }.mark { display:grid; width:43px; height:43px; place-items:center; border-radius:14px; color:#fff; background:linear-gradient(135deg,#3972f6,#4f46e5); box-shadow:0 12px 28px -13px rgba(49,92,239,.8); font-size:20px; }
+        .header-actions,.hero-actions { display:flex; flex-wrap:wrap; gap:10px; }.btn { display:inline-flex; min-height:48px; align-items:center; justify-content:center; border:1px solid transparent; border-radius:13px; padding:0 19px; font-size:14px; font-weight:780; transition:transform .18s ease,background .18s ease,box-shadow .18s ease; }.btn:hover { transform:translateY(-2px); }.btn-primary { color:#fff; background:var(--blue); box-shadow:0 14px 24px -17px rgba(49,92,239,.8); }.btn-primary:hover { background:var(--blue-dark); }.btn-secondary { border-color:var(--line); background:rgba(255,255,255,.86); }
+        main { padding:58px 0 76px; }.hero { position:relative; display:grid; align-items:center; gap:44px; }.eyebrow { display:inline-flex; align-items:center; gap:8px; color:var(--blue); font-size:12px; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }.eyebrow::before { width:22px; height:2px; border-radius:99px; background:currentColor; content:""; }
+        h1 { max-width:720px; margin:15px 0 0; font-size:clamp(43px,6.8vw,72px); line-height:1.01; letter-spacing:-.06em; }h1 em { color:var(--blue); font-style:normal; }.lead { max-width:645px; margin:22px 0 0; color:var(--muted); font-size:clamp(17px,2.2vw,20px); line-height:1.65; }.hero-actions { margin-top:30px; }
+        .trust-line { display:flex; flex-wrap:wrap; gap:15px 22px; margin-top:22px; color:var(--ink-soft); font-size:13px; font-weight:650; }.trust-line span { display:flex; align-items:center; gap:7px; }.trust-line i { display:grid; width:18px; height:18px; place-items:center; border-radius:50%; color:#fff; background:var(--green); font-size:11px; font-style:normal; }
+        .preview { position:relative; overflow:hidden; padding:24px; border:1px solid rgba(255,255,255,.94); border-radius:29px; background:rgba(255,255,255,.88); box-shadow:var(--shadow); backdrop-filter:blur(20px); }.preview::after { position:absolute; right:-76px; bottom:-90px; width:190px; height:190px; border-radius:50%; background:#dbeafe; content:""; }.preview-head,.preview-foot { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:14px; }.preview-head { padding-bottom:19px; border-bottom:1px solid var(--line); }.course-code,.status { display:inline-flex; align-items:center; border-radius:999px; padding:7px 10px; font-size:12px; font-weight:800; }.course-code { color:var(--blue); background:#eef3ff; }.status { color:#10734f; background:#dcfce7; }.question { position:relative; z-index:1; margin:24px 0 18px; font-size:clamp(20px,2.7vw,27px); line-height:1.35; letter-spacing:-.03em; }.options { position:relative; z-index:1; display:grid; gap:10px; }.option { display:flex; align-items:center; gap:12px; min-height:56px; padding:10px 13px; border:1px solid var(--line); border-radius:15px; background:#fff; color:#485775; font-size:14px; font-weight:650; }.option:first-child { border-color:#9cb7ff; color:var(--ink); background:#eef4ff; }.letter { display:grid; flex:none; width:33px; height:33px; place-items:center; border-radius:10px; background:#eef1f8; color:var(--ink); font-weight:850; }.option:first-child .letter { color:#fff; background:var(--blue); }.preview-foot { margin-top:20px; padding:14px 0 0; border-top:1px solid var(--line); color:var(--muted); font-size:12px; font-weight:700; }.preview-progress { width:100px; height:7px; overflow:hidden; border-radius:999px; background:#e6ebfa; }.preview-progress span { display:block; width:68%; height:100%; border-radius:inherit; background:var(--blue); }
+        .proof { display:grid; gap:16px; margin-top:72px; }.proof-card { padding:23px; border:1px solid var(--line); border-radius:22px; background:rgba(255,255,255,.79); box-shadow:0 20px 55px -45px rgba(23,51,133,.55); }.proof-icon { display:grid; width:42px; height:42px; place-items:center; border-radius:13px; color:var(--blue); background:#eaf1ff; font-size:19px; }.proof-card strong { display:block; margin-top:17px; font-size:17px; letter-spacing:-.02em; }.proof-card p { margin:8px 0 0; color:var(--muted); font-size:14px; line-height:1.6; }
+        .steps { display:grid; gap:16px; margin-top:78px; padding:clamp(26px,5vw,48px); border-radius:30px; background:linear-gradient(135deg,#182b6a,#254dc9); color:#fff; box-shadow:0 30px 70px -42px rgba(23,51,133,.85); }.steps-copy .eyebrow { color:#aecdff; }.steps-copy h2 { max-width:620px; margin:14px 0 0; font-size:clamp(28px,4vw,43px); line-height:1.08; letter-spacing:-.045em; }.steps-copy p { max-width:590px; margin:15px 0 0; color:#dce6ff; line-height:1.65; }.step-list { display:grid; gap:12px; }.step { display:flex; gap:13px; align-items:flex-start; padding:15px; border:1px solid rgba(255,255,255,.18); border-radius:16px; background:rgba(255,255,255,.1); }.step b { display:grid; flex:none; width:27px; height:27px; place-items:center; border-radius:9px; color:#2449cc; background:#fff; font-size:13px; }.step strong { display:block; font-size:14px; }.step span { display:block; margin-top:3px; color:#dce6ff; font-size:13px; line-height:1.5; }
+        .closing { padding:82px 0 8px; text-align:center; }.closing h2 { max-width:760px; margin:13px auto 0; font-size:clamp(31px,4.8vw,52px); line-height:1.06; letter-spacing:-.055em; }.closing p { max-width:620px; margin:18px auto 0; color:var(--muted); line-height:1.65; }.closing .hero-actions { justify-content:center; }footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; padding:24px 0 34px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }footer a { color:var(--blue); font-weight:700; }
+        @media (min-width:760px) { .hero { grid-template-columns:minmax(0,1.15fr) minmax(355px,.85fr); }.proof { grid-template-columns:repeat(3,minmax(0,1fr)); }.steps { grid-template-columns:minmax(0,1fr) minmax(320px,.72fr); align-items:center; } }@media (max-width:600px) { .shell { width:min(100% - 24px,1140px); }header { padding:16px 0; }.brand span:last-child { display:none; }.header-actions .btn-secondary { display:none; }main { padding-top:35px; }.hero-actions .btn { width:100%; }.preview { padding:17px; border-radius:22px; }.trust-line { gap:10px; }.closing { padding-top:62px; } }
     </style>
 </head>
 <body>
     <div class="shell">
-        <header>
-            <a class="brand" href="/" aria-label="ExamForge home"><span class="mark">E</span><span>ExamForge</span></a>
-            <nav class="header-actions" aria-label="Account navigation">
-                <a class="btn btn-secondary" href="{{ url('/student/login') }}">Student sign in</a>
-                <a class="btn btn-primary" href="{{ url('/student/register') }}">Create account</a>
-            </nav>
-        </header>
-
+        <header><a class="brand" href="/" aria-label="ExamForge home"><span class="mark">E</span><span>ExamForge</span></a><nav class="header-actions" aria-label="Account navigation"><a class="btn btn-secondary" href="{{ url('/student/login') }}">Student sign in</a><a class="btn btn-primary" href="{{ url('/student/register') }}">Create free account</a></nav></header>
         <main>
             <section class="hero">
-                <div>
-                    <p class="eyebrow">University exam preparation</p>
-                    <h1>Practise past questions with confidence.</h1>
-                    <p class="lead">Unlock your courses, take timed practice exams, and learn from clear answer explanations—all in one focused platform.</p>
-                    <div class="hero-actions">
-                        <a class="btn btn-primary" href="{{ url('/student/register') }}">Start practising</a>
-                        <a class="btn btn-secondary" href="{{ url('/student/login') }}">I already have an account</a>
-                    </div>
-                </div>
-
-                <div class="preview" aria-label="Practice exam preview">
-                    <div class="preview-head"><span class="course-code">CSC 302</span><span class="status">Practice ready</span></div>
-                    <h2 class="question">Which data structure uses FIFO ordering?</h2>
-                    <div class="options">
-                        <div class="option"><span class="letter">A</span><span>Queue</span></div>
-                        <div class="option"><span class="letter">B</span><span>Stack</span></div>
-                        <div class="option"><span class="letter">C</span><span>Binary tree</span></div>
-                    </div>
-                </div>
+                <div><p class="eyebrow">University exam preparation</p><h1>Prepare smarter. <em>Practise better.</em> Excel with ExamForge.</h1><p class="lead">Get a head start with recent, carefully selected university questions. Learn familiar exam patterns, identify weak areas, and walk into your examination prepared.</p><div class="hero-actions"><a class="btn btn-primary" href="{{ url('/student/register') }}">Subscribe now &amp; start practising</a><a class="btn btn-secondary" href="#why-examforge">Why ExamForge?</a></div><div class="trust-line"><span><i>✓</i> Timed practice exams</span><span><i>✓</i> Answer explanations</span><span><i>✓</i> Courses matched to you</span></div></div>
+                <div class="preview" aria-label="Practice exam preview"><div class="preview-head"><span class="course-code">GST 111</span><span class="status">● Practice ready</span></div><h2 class="question">Which option best describes effective communication?</h2><div class="options"><div class="option"><span class="letter">A</span><span>A clear exchange of information and understanding</span></div><div class="option"><span class="letter">B</span><span>Speaking without listening</span></div><div class="option"><span class="letter">C</span><span>Using the longest possible words</span></div></div><div class="preview-foot"><span>Question 7 of 20</span><span class="preview-progress"><span></span></span></div></div>
             </section>
-
-            <section class="features" aria-label="How ExamForge works">
-                <article class="feature"><strong>1. Choose a course</strong><p>Find past questions matched to your department and level.</p></article>
-                <article class="feature"><strong>2. Unlock access</strong><p>Pay securely and begin practising as soon as payment is confirmed.</p></article>
-                <article class="feature"><strong>3. Practise and review</strong><p>Complete timed exams and study every answer explanation.</p></article>
-            </section>
+            <section id="why-examforge" class="proof" aria-label="Why students choose ExamForge"><article class="proof-card"><span class="proof-icon">◷</span><strong>Recent exam questions</strong><p>Practise with relevant questions selected to strengthen your preparation for what matters most.</p></article><article class="proof-card"><span class="proof-icon">◎</span><strong>Frequently tested topics</strong><p>Get familiar with common question styles and topics that repeatedly appear in main examinations.</p></article><article class="proof-card"><span class="proof-icon">↗</span><strong>Practise with confidence</strong><p>Use each session to test your knowledge, find your weak areas, and improve before exam day.</p></article></section>
+            <section class="steps" aria-label="How ExamForge works"><div class="steps-copy"><p class="eyebrow">Your focused study routine</p><h2>Don’t just hope to pass. Prepare to excel.</h2><p>The more intentionally you practise, the more confident you become. ExamForge keeps the process simple, focused, and built around real exam preparation.</p></div><div class="step-list"><div class="step"><b>1</b><div><strong>Create your student account</strong><span>Choose your department and level.</span></div></div><div class="step"><b>2</b><div><strong>Unlock your course</strong><span>Pay securely for the questions you need.</span></div></div><div class="step"><b>3</b><div><strong>Practise, review, improve</strong><span>Take timed practice and learn from every answer.</span></div></div></div></section>
+            <section class="closing"><p class="eyebrow">Start today</p><h2>Practise today. Excel tomorrow.</h2><p>Join students taking their exam preparation seriously. Build confidence one question, one topic, and one practice session at a time.</p><div class="hero-actions"><a class="btn btn-primary" href="{{ url('/student/register') }}">Create your account</a><a class="btn btn-secondary" href="{{ url('/student/login') }}">I already have an account</a></div></section>
         </main>
-
-        <footer>© {{ date('Y') }} ExamForge · <a href="{{ url('/admin/login') }}">Administration</a></footer>
+        <footer><span>© {{ date('Y') }} ExamForge · Prepare smarter. Practise better.</span><a href="{{ url('/admin/login') }}">Administration</a></footer>
     </div>
 </body>
 </html>
