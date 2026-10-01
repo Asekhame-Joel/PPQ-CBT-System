@@ -8,6 +8,7 @@ use App\Filament\Resources\SupportRequests\Pages\ManageSupportRequests;
 use App\Models\SupportRequest;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -130,6 +131,7 @@ class SupportRequestResource extends Resource
                             ->success()
                             ->send();
                     }),
+                DeleteAction::make(),
             ])
             ->defaultSort('created_at', 'desc')
             ->emptyStateHeading('No support requests yet')
@@ -141,10 +143,5 @@ class SupportRequestResource extends Resource
         return [
             'index' => ManageSupportRequests::route('/'),
         ];
-    }
-
-    public static function canCreate(): bool
-    {
-        return false;
     }
 }

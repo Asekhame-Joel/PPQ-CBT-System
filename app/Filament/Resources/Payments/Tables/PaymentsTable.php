@@ -8,6 +8,8 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Payments\ApprovePendingPayment;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -91,6 +93,8 @@ class PaymentsTable
                             ->success()
                             ->send();
                     }),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->emptyStateHeading('No payments found')
             ->emptyStateDescription('Pending and completed student payments will appear here.')

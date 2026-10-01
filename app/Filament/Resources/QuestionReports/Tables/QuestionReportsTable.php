@@ -4,6 +4,9 @@ namespace App\Filament\Resources\QuestionReports\Tables;
 
 use App\Enums\QuestionReportReason;
 use App\Enums\QuestionReportStatus;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -53,6 +56,12 @@ class QuestionReportsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ])
             ->defaultSort('created_at', 'desc');
     }

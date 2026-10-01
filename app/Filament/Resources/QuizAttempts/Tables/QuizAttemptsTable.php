@@ -4,6 +4,7 @@ namespace App\Filament\Resources\QuizAttempts\Tables;
 
 use App\Enums\AttemptStatus;
 use App\Enums\AttemptType;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -83,6 +84,7 @@ class QuizAttemptsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                DeleteAction::make(),
             ])
             ->defaultSort('started_at', 'desc');
     }

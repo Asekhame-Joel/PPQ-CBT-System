@@ -4,8 +4,10 @@ namespace Tests\Feature\Admin;
 
 use App\Enums\AccessSource;
 use App\Enums\PaymentStatus;
+use App\Filament\Resources\Payments\Pages\CreatePayment;
 use App\Filament\Resources\Payments\Pages\ListPayments;
 use App\Filament\Resources\Payments\PaymentResource;
+use App\Models\Course;
 use App\Models\CourseAccess;
 use App\Models\Payment;
 use App\Models\User;
@@ -44,16 +46,36 @@ class PaymentResourceTest extends TestCase
             ->assertCanNotSeeTableRecords([$pendingPayment]);
     }
 
-    public function test_payment_resource_does_not_allow_manual_creation(): void
+    public function test_admin_can_create_a_manual_payment_record(): void
     {
         $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
-        $this->actingAs($admin);
+        Livewire::actingAs($admin)
+            ->test(CreatePayment::class)
+            ->fillForm([
+                'user_id' => $student->id,
+                'course_id' => $course->id,
+                'reference' => 'EXAM-MANUAL-RECORD-001',
+                'amount' => 1500,
+                'currency' => 'NGN',
+                'status' => PaymentStatus::Pending->value,
+                'provider' => 'paystack',
+                'paid_at' => null,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
 
-        $this->assertFalse(PaymentResource::canCreate());
-        $this->assertArrayNotHasKey('create', PaymentResource::getPages());
-        $this->assertArrayNotHasKey('edit', PaymentResource::getPages());
+        $this->assertDatabaseHas('payments', [
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'reference' => 'EXAM-MANUAL-RECORD-001',
+            'status' => PaymentStatus::Pending->value,
+        ]);
+        $this->assertArrayHasKey('create', PaymentResource::getPages());
+        $this->assertArrayHasKey('edit', PaymentResource::getPages());
     }
 
     public function test_admin_can_approve_pending_payment_and_unlock_course(): void

@@ -61,9 +61,4 @@ class QuizAttemptResource extends Resource
     {
         return false;
     }
-
-    public static function canDelete(Model $record): bool
-    {
-        return false;
-    }
 }
