@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Enums\AccessSource;
 use App\Enums\PaymentStatus;
 use App\Filament\Resources\Payments\Pages\CreatePayment;
+use App\Filament\Resources\Payments\Pages\EditPayment;
 use App\Filament\Resources\Payments\Pages\ListPayments;
 use App\Filament\Resources\Payments\PaymentResource;
 use App\Models\Course;
@@ -104,6 +105,43 @@ class PaymentResourceTest extends TestCase
         $this->assertSame($payment->id, $access->payment_id);
         $this->assertSame(AccessSource::Payment, $access->access_source);
         $this->assertTrue($access->is_active);
+    }
+
+    public function test_admin_editing_a_payment_to_successful_unlocks_the_course(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $payment = Payment::factory()->create(['status' => PaymentStatus::Pending]);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(EditPayment::class, ['record' => $payment->id])
+            ->fillForm(['status' => PaymentStatus::Successful->value])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $access = CourseAccess::query()->sole();
+        $this->assertTrue($access->is_active);
+        $this->assertSame($payment->id, $access->payment_id);
+        $this->assertSame(PaymentStatus::Successful, $payment->fresh()->status);
+    }
+
+    public function test_admin_editing_a_payment_to_failed_locks_its_course_access(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $payment = Payment::factory()->successful()->create();
+        $access = CourseAccess::factory()->for($payment->user)->for($payment->course)->for($payment)->create([
+            'access_source' => AccessSource::Payment,
+        ]);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(EditPayment::class, ['record' => $payment->id])
+            ->fillForm(['status' => PaymentStatus::Failed->value])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(PaymentStatus::Failed, $payment->fresh()->status);
+        $this->assertFalse($access->fresh()->is_active);
     }
 
     public function test_manual_approval_is_not_available_for_a_completed_payment(): void

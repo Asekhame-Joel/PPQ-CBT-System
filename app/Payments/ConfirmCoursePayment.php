@@ -2,16 +2,17 @@
 
 namespace App\Payments;
 
-use App\Enums\AccessSource;
 use App\Enums\PaymentStatus;
-use App\Models\CourseAccess;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class ConfirmCoursePayment
 {
-    public function __construct(private PaymentGateway $gateway) {}
+    public function __construct(
+        private PaymentGateway $gateway,
+        private SyncPaymentCourseAccess $syncPaymentCourseAccess,
+    ) {}
 
     public function handle(Payment $payment): bool
     {
@@ -47,19 +48,7 @@ class ConfirmCoursePayment
                 ]);
             }
 
-            CourseAccess::query()->updateOrCreate(
-                [
-                    'user_id' => $lockedPayment->user_id,
-                    'course_id' => $lockedPayment->course_id,
-                ],
-                [
-                    'payment_id' => $lockedPayment->getKey(),
-                    'access_source' => AccessSource::Payment,
-                    'granted_at' => now(),
-                    'expires_at' => null,
-                    'is_active' => true,
-                ],
-            );
+            $this->syncPaymentCourseAccess->handle($lockedPayment);
         });
 
         return true;
