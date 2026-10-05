@@ -80,6 +80,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(QuestionReport::class);
     }
 
+    public function courseQuestionRequests(): HasMany
+    {
+        return $this->hasMany(CourseQuestionRequest::class);
+    }
+
     public function resolvedQuestionReports(): HasMany
     {
         return $this->hasMany(QuestionReport::class, 'resolved_by');
