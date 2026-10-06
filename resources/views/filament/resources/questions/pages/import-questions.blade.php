@@ -65,14 +65,34 @@
 
             <x-filament::section
                 heading="Question preview"
-                description="{{ count($previewQuestions) }} question(s) in this preview. Edit or delete them before importing."
+                description="{{ count($previewQuestions) }} question(s) in this preview. Search by any word in a question, then edit or delete it before importing."
                 icon="heroicon-o-document-magnifying-glass"
             >
-                <div class="space-y-6">
+                <div x-data="{ search: '' }" class="space-y-6">
+                    <div class="rounded-xl border border-primary-100 bg-primary-50 p-4">
+                        <label for="question-preview-search" class="block text-sm font-semibold text-gray-950">Find a question in this upload</label>
+                        <input
+                            id="question-preview-search"
+                            type="search"
+                            x-model.debounce.150ms="search"
+                            placeholder="Type words from the question, for example: body temperature"
+                            class="mt-2 block w-full rounded-lg border-gray-300 bg-white text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                        >
+                        <p class="mt-2 text-xs text-gray-600">Search is instant and does not change the questions being imported.</p>
+                    </div>
+
                     @forelse ($previewQuestions as $index => $question)
-                        <div wire:key="preview-question-{{ $index }}" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                        <div
+                            wire:key="preview-question-{{ $index }}"
+                            x-show="search === '' || $el.dataset.question.includes(search.toLowerCase())"
+                            data-question="{{ mb_strtolower($question['text']) }}"
+                            class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                        >
                             <div class="mb-4 flex items-center justify-between gap-4">
-                                <p class="font-semibold text-gray-950">Question {{ $index + 1 }}</p>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-600">Question {{ $index + 1 }}</p>
+                                    <p class="mt-1 text-base font-semibold leading-6 text-gray-950">{{ $question['text'] }}</p>
+                                </div>
                                 <x-filament::button
                                     type="button"
                                     color="danger"
@@ -127,6 +147,10 @@
                     @empty
                         <p class="text-sm text-gray-600 dark:text-gray-400">No valid questions were found.</p>
                     @endforelse
+
+                    <p x-show="search !== '' && ! Array.from($el.parentElement.querySelectorAll('[data-question]')).some((question) => question.dataset.question.includes(search.toLowerCase()))" class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+                        No question matches that search. Try a different word or phrase.
+                    </p>
                 </div>
             </x-filament::section>
 

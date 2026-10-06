@@ -40,7 +40,9 @@ class QuestionImportTest extends TestCase
             ->assertSet('hasPreview', true)
             ->assertCount('previewQuestions', 2)
             ->assertSet('previewQuestions.0.explanation', "Abuja is Nigeria's capital city.")
-            ->assertSet('previewErrors', []);
+            ->assertSet('previewErrors', [])
+            ->assertSee('Find a question in this upload')
+            ->assertSee('What is the capital of Nigeria?');
 
         $component
             ->call('import')
