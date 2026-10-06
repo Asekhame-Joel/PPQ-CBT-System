@@ -32,6 +32,8 @@ class StudentPanelProvider extends PanelProvider
             ->registration(Register::class)
             ->passwordReset()
             ->brandName('ExamForge')
+            ->brandLogo(asset('images/examforge-logo.svg'))
+            ->brandLogoHeight('2.25rem')
             ->darkMode(false)
             ->themeSwitcher(false)
             ->colors([

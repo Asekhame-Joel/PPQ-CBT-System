@@ -11,8 +11,9 @@ class LandingPageTest extends TestCase
         $this->get('/')
             ->assertSuccessful()
             ->assertSee('ExamForge')
-            ->assertSee('Practise past questions with confidence.')
-            ->assertSee('Start practising')
+            ->assertSee('Prepare smarter.')
+            ->assertSee('images/examforge-mark.svg')
+            ->assertSee('Subscribe now &amp; start practising', escape: false)
             ->assertSee('/student/register', escape: false)
             ->assertSee('/student/login', escape: false)
             ->assertSee('/admin/login', escape: false);

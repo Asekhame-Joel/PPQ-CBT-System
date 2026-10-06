@@ -19,7 +19,7 @@
         .ea-step strong { display:block; color:var(--ea-ink); font-size:.86rem; } .dark .ea-step strong { color:#f8fafc; }
         .ea-step span { display:block; margin-top:.2rem; color:var(--ea-muted); font-size:.78rem; line-height:1.45; } .dark .ea-step span { color:#94a3b8; }
         .ea-auth-intro { margin-bottom:1.25rem; text-align:center; }
-        .ea-auth-mark { display:grid; width:3rem; height:3rem; margin:0 auto .9rem; place-items:center; border-radius:1rem; color:#fff; background:var(--ea-brand); box-shadow:0 12px 28px -14px rgba(79,70,229,.8); font-size:1.15rem; font-weight:900; }
+        .ea-auth-mark { width:3.25rem; height:3.25rem; margin:0 auto .9rem; } .ea-auth-mark img { display:block; width:100%; height:100%; }
         .ea-auth-title { color:var(--ea-ink); font-size:1.25rem; font-weight:800; }
         .ea-auth-copy { margin-top:.35rem; color:var(--ea-muted); font-size:.84rem; }
         @media (min-width:768px) { .ea-steps { grid-template-columns:repeat(3,minmax(0,1fr)); } }

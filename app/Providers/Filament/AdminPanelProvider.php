@@ -30,6 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('ExamForge Admin')
+            ->brandLogo(asset('images/examforge-logo.svg'))
+            ->brandLogoHeight('2.25rem')
             ->darkMode(false)
             ->themeSwitcher(false)
             ->colors([

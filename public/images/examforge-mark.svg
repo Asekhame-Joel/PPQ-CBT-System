@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+    <title id="title">ExamForge</title>
+    <desc id="desc">An open book with an upward arrow representing exam preparation and progress.</desc>
+    <defs>
+        <linearGradient id="examforge-gradient" x1="10" y1="8" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#2563eb"/>
+            <stop offset="1" stop-color="#4f46e5"/>
+        </linearGradient>
+    </defs>
+    <rect width="64" height="64" rx="20" fill="url(#examforge-gradient)"/>
+    <path d="M13.5 22.25c6.2-2.25 12.35-1.15 18.5 3.25v22.1c-6.15-4.4-12.3-5.5-18.5-3.25v-22.1Z" fill="#dbeafe"/>
+    <path d="M50.5 22.25C44.3 20 38.15 21.1 32 25.5v22.1c6.15-4.4 12.3-5.5 18.5-3.25v-22.1Z" fill="#fff"/>
+    <path d="M20.5 29.75c3.95-.72 7.78.4 11.5 3.35M20.5 36c3.95-.72 7.78.4 11.5 3.35M43.5 29.75c-3.95-.72-7.78.4-11.5 3.35M43.5 36c-3.95-.72-7.78.4-11.5 3.35" fill="none" stroke="#7c9df8" stroke-linecap="round" stroke-width="1.7"/>
+    <path d="M32 15.5v13M26.75 20.75 32 15.5l5.25 5.25" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"/>
+</svg>
