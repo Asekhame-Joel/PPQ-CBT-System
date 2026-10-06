@@ -42,6 +42,8 @@ class ImportQuestions extends Page
     /** @var list<string> */
     public array $skippedDuplicates = [];
 
+    public ?string $sourceFilename = null;
+
     public bool $hasPreview = false;
 
     public function getHeading(): string
@@ -102,6 +104,9 @@ class ImportQuestions extends Page
     {
         $data = $this->form->getState();
         $course = Course::active()->findOrFail($data['course_id']);
+        $this->sourceFilename = $data['file'] instanceof UploadedFile
+            ? $data['file']->getClientOriginalName()
+            : null;
         $result = $this->parseUploadedFile($parser, $data['file']);
         $filtered = $duplicateDetector->filter($course, $result->questions);
 
@@ -128,10 +133,15 @@ class ImportQuestions extends Page
             return;
         }
 
-        $count = $importer->import($course, $result->questions);
+        $batch = $importer->import(
+            $course,
+            $result->questions,
+            auth()->id(),
+            $this->uploadedFilename(),
+        );
 
         Notification::make()
-            ->title("{$count} questions imported")
+            ->title("{$batch->question_count} questions imported as one batch")
             ->success()
             ->send();
 
@@ -185,6 +195,11 @@ class ImportQuestions extends Page
         }
 
         return $parser->parse($file->getRealPath(), $file->getClientOriginalName());
+    }
+
+    private function uploadedFilename(): string
+    {
+        return $this->sourceFilename ?: 'questions';
     }
 
     /** @param list<ParsedQuestion> $questions */

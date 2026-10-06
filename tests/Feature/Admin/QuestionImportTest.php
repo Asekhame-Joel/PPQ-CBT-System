@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Filament\Resources\Questions\Pages\ImportQuestions;
 use App\Models\Course;
+use App\Models\QuestionImportBatch;
 use App\Models\User;
 use App\QuestionImports\AikenTextParser;
 use App\QuestionImports\QuestionImportTemplate;
@@ -48,10 +49,17 @@ class QuestionImportTest extends TestCase
 
         $this->assertDatabaseCount('questions', 2);
         $this->assertDatabaseCount('question_options', 4);
+        $this->assertDatabaseCount('question_import_batches', 1);
         $this->assertDatabaseHas('questions', [
             'course_id' => $course->id,
             'question_text' => 'What is the capital of Nigeria?',
         ]);
+        $batch = QuestionImportBatch::sole();
+        $this->assertSame('questions.txt', $batch->source_filename);
+        $this->assertSame('txt', $batch->source_format);
+        $this->assertSame(2, $batch->question_count);
+        $this->assertTrue($batch->importer->is($admin));
+        $this->assertSame(2, $batch->questions()->count());
         $this->assertDatabaseHas('question_options', [
             'option_text' => 'Abuja',
             'is_correct' => true,

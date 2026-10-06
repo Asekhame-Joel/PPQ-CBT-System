@@ -46,6 +46,11 @@ class Course extends Model
         return $this->hasMany(Question::class);
     }
 
+    public function questionImportBatches(): HasMany
+    {
+        return $this->hasMany(QuestionImportBatch::class);
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['course_id', 'question_text', 'explanation', 'is_active'])]
+#[Fillable(['course_id', 'question_import_batch_id', 'question_text', 'explanation', 'is_active'])]
 class Question extends Model
 {
     /** @use HasFactory<QuestionFactory> */
@@ -34,6 +34,11 @@ class Question extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function importBatch(): BelongsTo
+    {
+        return $this->belongsTo(QuestionImportBatch::class, 'question_import_batch_id');
     }
 
     public function options(): HasMany
