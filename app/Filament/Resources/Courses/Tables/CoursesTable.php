@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\Courses\Tables;
 
+use App\Filament\Resources\Questions\QuestionResource;
+use App\Models\Course;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -74,6 +78,11 @@ class CoursesTable
                     ->label('Active status'),
             ])
             ->recordActions([
+                Action::make('addQuestions')
+                    ->label('Add questions')
+                    ->icon(Heroicon::OutlinedArrowUpTray)
+                    ->url(fn (Course $record): string => QuestionResource::getUrl('import', ['course' => $record->id]))
+                    ->visible(fn (Course $record): bool => $record->is_active),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

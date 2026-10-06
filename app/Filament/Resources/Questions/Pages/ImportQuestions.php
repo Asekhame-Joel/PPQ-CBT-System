@@ -58,7 +58,12 @@ class ImportQuestions extends Page
 
     public function mount(): void
     {
-        $this->form->fill();
+        $courseId = request()->integer('course');
+        $selectedCourseId = Course::active()->whereKey($courseId)->exists() ? $courseId : null;
+
+        $this->form->fill([
+            'course_id' => $selectedCourseId,
+        ]);
     }
 
     public function form(Schema $schema): Schema

@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Filament\Resources\Courses\Pages\CreateCourse;
 use App\Filament\Resources\Courses\Pages\EditCourse;
 use App\Filament\Resources\Courses\Pages\ListCourses;
+use App\Filament\Resources\Questions\QuestionResource;
 use App\Models\Course;
 use App\Models\Department;
 use App\Models\Level;
@@ -27,6 +28,21 @@ class CourseResourceTest extends TestCase
         Livewire::actingAs($admin)
             ->test(ListCourses::class)
             ->assertCanSeeTableRecords($courses);
+    }
+
+    public function test_admin_can_open_question_import_with_an_active_course_preselected(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create(['is_active' => true]);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(ListCourses::class)
+            ->assertTableActionHasUrl(
+                'addQuestions',
+                QuestionResource::getUrl('import', ['course' => $course->id]),
+                $course,
+            );
     }
 
     public function test_admin_can_create_course_with_department_assignments(): void

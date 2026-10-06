@@ -67,6 +67,18 @@ class QuestionImportTest extends TestCase
         ]);
     }
 
+    public function test_active_course_is_preselected_when_adding_questions_from_its_admin_page(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create(['is_active' => true]);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::withQueryParams(['course' => $course->id])
+            ->actingAs($admin)
+            ->test(ImportQuestions::class)
+            ->assertSet('data.course_id', $course->id);
+    }
+
     public function test_invalid_file_is_previewed_but_cannot_be_imported(): void
     {
         $admin = User::factory()->admin()->create();
