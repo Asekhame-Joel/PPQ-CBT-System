@@ -5,10 +5,14 @@ namespace Tests\Feature\Admin;
 use App\Filament\Resources\Questions\Pages\CreateQuestion;
 use App\Filament\Resources\Questions\Pages\EditQuestion;
 use App\Filament\Resources\Questions\Pages\ListQuestions;
+use App\Models\AttemptAnswer;
+use App\Models\AttemptQuestion;
 use App\Models\Course;
 use App\Models\Question;
 use App\Models\QuestionOption;
+use App\Models\QuizAttempt;
 use App\Models\User;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Livewire\Livewire;
@@ -112,6 +116,59 @@ class QuestionResourceTest extends TestCase
             ]);
 
         $this->assertDatabaseMissing('questions', ['question_text' => 'What does CPU stand for?']);
+    }
+
+    public function test_admin_can_delete_all_live_questions_without_removing_attempt_snapshots(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $question = Question::factory()->for($course)->create([
+            'question_text' => 'Which organ pumps blood around the body?',
+            'explanation' => 'The heart pumps blood around the body.',
+        ]);
+        $correctOption = QuestionOption::factory()->for($question)->correct()->create([
+            'option_text' => 'Heart',
+            'sort_order' => 1,
+        ]);
+        QuestionOption::factory()->for($question)->create([
+            'option_text' => 'Lungs',
+            'sort_order' => 2,
+        ]);
+        $attempt = QuizAttempt::factory()->submitted()->for($student)->for($course)->create([
+            'question_count' => 1,
+        ]);
+        $attemptQuestion = AttemptQuestion::factory()->for($attempt)->for($question)->create([
+            'position' => 1,
+            'question_snapshot' => $question->question_text,
+            'options_snapshot' => [
+                ['id' => $correctOption->id, 'text' => 'Heart'],
+                ['id' => $correctOption->id + 1, 'text' => 'Lungs'],
+            ],
+            'correct_option_snapshot' => $correctOption->id,
+            'explanation_snapshot' => $question->explanation,
+        ]);
+        AttemptAnswer::factory()->for($attemptQuestion)->create([
+            'selected_option_id' => $correctOption->id,
+            'is_correct' => true,
+        ]);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(ListQuestions::class)
+            ->callAction(TestAction::make('deleteAllQuestions'), ['confirmation' => 'DELETE'])
+            ->assertHasNoActionErrors()
+            ->assertNotified('1 question(s) deleted');
+
+        $this->assertModelMissing($question);
+        $this->assertDatabaseCount('question_options', 0);
+
+        $attemptQuestion->refresh();
+        $this->assertNull($attemptQuestion->question_id);
+        $this->assertSame('Which organ pumps blood around the body?', $attemptQuestion->question_snapshot);
+        $this->assertSame('The heart pumps blood around the body.', $attemptQuestion->explanation_snapshot);
+        $this->assertSame('Heart', $attemptQuestion->optionText($correctOption->id));
+        $this->assertModelExists($attemptQuestion->answer);
     }
 
     /**
