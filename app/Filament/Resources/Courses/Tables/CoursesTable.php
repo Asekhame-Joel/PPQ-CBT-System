@@ -22,9 +22,10 @@ class CoursesTable
     {
         return $table
             ->columns([
-                TextColumn::make('level.name')
-                    ->label('Level')
-                    ->sortable(),
+                TextColumn::make('levels.name')
+                    ->label('Levels')
+                    ->badge()
+                    ->limitList(3),
                 TextColumn::make('departments.name')
                     ->label('Departments')
                     ->badge()
@@ -72,8 +73,8 @@ class CoursesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('level')
-                    ->relationship('level', 'name'),
+                SelectFilter::make('levels')
+                    ->relationship('levels', 'name'),
                 TernaryFilter::make('is_active')
                     ->label('Active status'),
             ])

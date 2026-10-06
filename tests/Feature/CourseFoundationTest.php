@@ -12,15 +12,16 @@ class CourseFoundationTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    public function test_course_belongs_to_a_level_and_multiple_departments(): void
+    public function test_course_belongs_to_multiple_levels_and_departments(): void
     {
-        $level = Level::factory()->create();
+        $levels = Level::factory()->count(2)->create();
         $departments = Department::factory()->count(2)->create();
-        $course = Course::factory()->for($level)->create();
+        $course = Course::factory()->for($levels->first())->create();
 
         $course->departments()->attach($departments);
+        $course->levels()->sync($levels);
 
-        $this->assertTrue($course->level->is($level));
+        $this->assertEqualsCanonicalizing($levels->modelKeys(), $course->levels->modelKeys());
         $this->assertCount(2, $course->departments);
         $this->assertTrue($departments->every(
             fn (Department $department): bool => $department->courses->contains($course),

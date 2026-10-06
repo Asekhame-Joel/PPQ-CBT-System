@@ -64,6 +64,7 @@ class CourseResourceTest extends TestCase
         $this->assertSame('Introduction to Computing', $course->name);
         $this->assertSame('1000.00', $course->price);
         $this->assertTrue($course->level->is($level));
+        $this->assertTrue($course->levels->contains($level));
         $this->assertEqualsCanonicalizing($departments->modelKeys(), $course->departments->modelKeys());
     }
 
@@ -87,6 +88,29 @@ class CourseResourceTest extends TestCase
 
         $this->assertEqualsCanonicalizing([$newDepartment->id], $course->departments->modelKeys());
         $this->assertSame('CSC 111', $course->code);
+    }
+
+    public function test_admin_can_assign_multiple_levels_to_a_course(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $firstLevel = Level::factory()->create();
+        $secondLevel = Level::factory()->create();
+        $department = Department::factory()->create();
+        $course = Course::factory()->for($firstLevel)->create();
+        $course->departments()->attach($department);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($admin)
+            ->test(EditCourse::class, ['record' => $course->id])
+            ->fillForm(array_replace($this->validCourseData($firstLevel, [$department->id]), [
+                'levels' => [$firstLevel->id, $secondLevel->id],
+            ]))
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $course->refresh();
+
+        $this->assertEqualsCanonicalizing([$firstLevel->id, $secondLevel->id], $course->levels->modelKeys());
     }
 
     public function test_course_defaults_must_be_within_configured_ranges(): void
@@ -137,7 +161,7 @@ class CourseResourceTest extends TestCase
     private function validCourseData(Level $level, array $departmentIds): array
     {
         return [
-            'level_id' => $level->id,
+            'levels' => [$level->id],
             'departments' => $departmentIds,
             'code' => 'CSC 111',
             'name' => 'Introduction to Computing',

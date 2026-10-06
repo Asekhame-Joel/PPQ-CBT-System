@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Courses\Schemas;
 
-use App\Models\Level;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -11,7 +10,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Validation\Rule;
 
 class CourseForm
 {
@@ -30,18 +28,20 @@ class CourseForm
                                 TextInput::make('name')
                                     ->required()
                                     ->maxLength(200),
-                                Select::make('level_id')
-                                    ->label('Level')
-                                    ->options(fn (): array => Level::active()
-                                        ->orderBy('sort_order')
-                                        ->pluck('name', 'id')
-                                        ->all())
-                                    ->rules([
-                                        Rule::exists('levels', 'id')->where('is_active', true),
-                                    ])
+                                Select::make('levels')
+                                    ->label('Levels')
+                                    ->relationship(
+                                        name: 'levels',
+                                        titleAttribute: 'name',
+                                        modifyQueryUsing: fn (Builder $query): Builder => $query
+                                            ->where('is_active', true)
+                                            ->orderBy('sort_order'),
+                                    )
+                                    ->multiple()
                                     ->searchable()
                                     ->preload()
-                                    ->required(),
+                                    ->required()
+                                    ->minItems(1),
                                 Select::make('departments')
                                     ->relationship(
                                         name: 'departments',

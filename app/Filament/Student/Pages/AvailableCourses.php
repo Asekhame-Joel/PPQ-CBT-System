@@ -28,7 +28,7 @@ class AvailableCourses extends Page
         return Course::query()
             ->active()
             ->eligibleFor($student)
-            ->with('level')
+            ->with('levels')
             ->withCount(['questions' => fn ($query) => $query->active()])
             ->withExists(['courseAccesses as is_unlocked' => fn ($query) => $query
                 ->available()

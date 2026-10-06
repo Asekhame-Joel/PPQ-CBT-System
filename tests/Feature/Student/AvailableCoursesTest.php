@@ -78,6 +78,27 @@ class AvailableCoursesTest extends TestCase
             ->assertSee('Not available yet');
     }
 
+    public function test_students_from_any_level_assigned_to_a_course_can_see_it(): void
+    {
+        $department = Department::factory()->create();
+        $firstLevel = Level::factory()->create();
+        $secondLevel = Level::factory()->create();
+        $firstStudent = User::factory()->for($department)->for($firstLevel)->create();
+        $secondStudent = User::factory()->for($department)->for($secondLevel)->create();
+        $course = Course::factory()->for($firstLevel)->create(['code' => 'GST111']);
+        $course->levels()->sync([$firstLevel->id, $secondLevel->id]);
+        $course->departments()->attach($department);
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($firstStudent)
+            ->test(AvailableCourses::class)
+            ->assertSee('GST111');
+
+        Livewire::actingAs($secondStudent)
+            ->test(AvailableCourses::class)
+            ->assertSee('GST111');
+    }
+
     public function test_student_with_incomplete_academic_profile_sees_guidance(): void
     {
         $student = User::factory()->create([

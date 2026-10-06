@@ -41,6 +41,11 @@ class Course extends Model
         return $this->belongsToMany(Department::class);
     }
 
+    public function levels(): BelongsToMany
+    {
+        return $this->belongsToMany(Level::class);
+    }
+
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class);
@@ -80,7 +85,8 @@ class Course extends Model
         }
 
         return $query
-            ->where('level_id', $student->level_id)
+            ->whereHas('levels', fn (Builder $query): Builder => $query
+                ->whereKey($student->level_id))
             ->where(fn (Builder $query): Builder => $query
                 ->whereDoesntHave('departments')
                 ->orWhereHas('departments', fn (Builder $query): Builder => $query

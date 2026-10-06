@@ -11,6 +11,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CourseFactory extends Factory
 {
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Course $course): void {
+            $course->levels()->syncWithoutDetaching([$course->level_id]);
+        });
+    }
+
     /**
      * Define the model's default state.
      *
