@@ -25,7 +25,7 @@
                     {{ filled($course->description) ? $course->description : $displayQuestionLabel.' ready for practice.' }}
                 </p>
                 <div class="ef-details">
-                    <span>{{ $course->level?->name ?? 'General' }}</span>
+                    <span>{{ $course->level ? $course->level->name.' Level' : 'General' }}</span>
                     <span>{{ $displayQuestionLabel }}</span>
                 </div>
 

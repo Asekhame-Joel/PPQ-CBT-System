@@ -24,7 +24,7 @@
                 <h2 class="ef-course-name">{{ $course->name }}</h2>
                 <p class="ef-description">{{ filled($course->description) ? $course->description : 'Your unlocked past-question practice course.' }}</p>
                 <div class="ef-details">
-                    @if ($course->level)<span>{{ $course->level->name }}</span>@endif
+                    @if ($course->level)<span>{{ $course->level->name }} Level</span>@endif
                     <span>{{ $displayQuestionLabel }}</span>
                     <span>{{ $access->expires_at ? 'Until '.$access->expires_at->toFormattedDateString() : 'No expiry' }}</span>
                 </div>
