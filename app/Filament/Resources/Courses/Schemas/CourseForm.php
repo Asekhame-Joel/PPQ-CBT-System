@@ -69,10 +69,16 @@ class CourseForm
                     ])
                     ->columnSpanFull(),
                 Section::make('Practice settings')
-                    ->description('Set the allowed question and duration ranges for this course.')
+                    ->description('Set the student-facing question total and the allowed question and duration ranges for this course.')
                     ->schema([
                         Grid::make(3)
                             ->schema([
+                                TextInput::make('display_question_count')
+                                    ->label('Questions shown to students')
+                                    ->helperText('Optional. This controls the number displayed on the course card; practice still uses the active question bank.')
+                                    ->integer()
+                                    ->minValue(1)
+                                    ->maxValue(65535),
                                 TextInput::make('min_question_count')
                                     ->label('Minimum questions')
                                     ->required()

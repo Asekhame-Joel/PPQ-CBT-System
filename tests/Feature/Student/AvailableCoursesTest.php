@@ -78,6 +78,25 @@ class AvailableCoursesTest extends TestCase
             ->assertSee('Not available yet');
     }
 
+    public function test_catalogue_uses_the_administrator_question_count_when_one_is_set(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create([
+            'code' => 'NCP1',
+            'display_question_count' => 300,
+            'level_id' => $student->level_id,
+            'min_question_count' => 2,
+        ]);
+        $course->departments()->attach($student->department_id);
+        Question::factory()->count(2)->for($course)->create();
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($student)
+            ->test(AvailableCourses::class)
+            ->assertSee('300 questions')
+            ->assertDontSee('2 questions');
+    }
+
     public function test_students_from_any_level_assigned_to_a_course_can_see_it(): void
     {
         $department = Department::factory()->create();

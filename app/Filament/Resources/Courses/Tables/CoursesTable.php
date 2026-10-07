@@ -42,6 +42,11 @@ class CoursesTable
                 TextColumn::make('default_question_count')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('display_question_count')
+                    ->label('Shown questions')
+                    ->numeric()
+                    ->placeholder('Live count')
+                    ->sortable(),
                 TextColumn::make('default_duration')
                     ->numeric()
                     ->sortable(),
