@@ -28,6 +28,10 @@ class PaymentReturn extends Page
         try {
             $this->successful = $confirmPayment->handle($payment);
             $this->payment->refresh();
+
+            if ($this->successful) {
+                $this->redirect(PracticeSetup::getUrl(['course' => $this->payment->course_id], panel: 'student'));
+            }
         } catch (Throwable $exception) {
             report($exception);
         }

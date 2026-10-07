@@ -6,6 +6,7 @@ use App\Enums\AccessSource;
 use App\Enums\PaymentStatus;
 use App\Filament\Student\Pages\Checkout;
 use App\Filament\Student\Pages\PaymentReturn;
+use App\Filament\Student\Pages\PracticeSetup;
 use App\Models\Course;
 use App\Models\CourseAccess;
 use App\Models\Payment;
@@ -110,7 +111,7 @@ class CourseCheckoutTest extends TestCase
 
         Livewire::actingAs($student)
             ->test(PaymentReturn::class, ['payment' => $payment])
-            ->assertSee('Payment successful');
+            ->assertRedirect(PracticeSetup::getUrl(['course' => $course], panel: 'student'));
 
         $payment->refresh();
         $access = CourseAccess::query()->sole();
