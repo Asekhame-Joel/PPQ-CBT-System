@@ -6,7 +6,6 @@ use App\Enums\AccessSource;
 use App\Enums\PaymentStatus;
 use App\Filament\Student\Pages\Checkout;
 use App\Filament\Student\Pages\PaymentReturn;
-use App\Filament\Student\Pages\PracticeSetup;
 use App\Models\Course;
 use App\Models\CourseAccess;
 use App\Models\Payment;
@@ -131,7 +130,8 @@ class CourseCheckoutTest extends TestCase
 
         Livewire::actingAs($student)
             ->test(PaymentReturn::class, ['payment' => $payment])
-            ->assertRedirect(PracticeSetup::getUrl(['course' => $course], panel: 'student'));
+            ->call('retryVerification')
+            ->assertSee('Payment confirmed');
 
         $payment->refresh();
         $access = CourseAccess::query()->sole();
@@ -159,7 +159,8 @@ class CourseCheckoutTest extends TestCase
 
         Livewire::actingAs($student)
             ->test(PaymentReturn::class, ['payment' => $payment])
-            ->assertSee('Opening your course');
+            ->call('retryVerification')
+            ->assertSee('Verifying your payment');
 
         $this->assertSame(PaymentStatus::Pending, $payment->fresh()->status);
         $this->assertDatabaseCount('course_access', 0);
@@ -186,7 +187,8 @@ class CourseCheckoutTest extends TestCase
         Livewire::actingAs($student)
             ->test(PaymentReturn::class, ['payment' => $payment])
             ->call('retryVerification')
-            ->assertRedirect(PracticeSetup::getUrl(['course' => $course], panel: 'student'));
+            ->call('retryVerification')
+            ->assertSee('Payment confirmed');
 
         $this->assertSame(PaymentStatus::Successful, $payment->fresh()->status);
         $this->assertDatabaseHas('course_access', [

@@ -158,6 +158,9 @@
         .ef-status-icon { display:grid; width:4rem; height:4rem; margin:0 auto 1rem; place-items:center; border-radius:1.25rem; font-size:1.75rem; font-weight:900; }
         .ef-status-icon--success { color:var(--ef-green); background:var(--ef-green-soft); }
         .ef-status-icon--pending { color:var(--ef-amber); background:var(--ef-amber-soft); }
+        .ef-status-icon--loading { background:var(--ef-soft); }
+        .ef-status-icon--loading span { width:1.75rem; height:1.75rem; border:.22rem solid rgba(79,70,229,.22); border-top-color:var(--ef-brand); border-radius:50%; animation:ef-status-spin .75s linear infinite; }
+        @keyframes ef-status-spin { to { transform:rotate(360deg); } }
         .ef-receipt { max-width:48rem; margin-inline:auto; overflow:hidden; border:1px solid var(--ef-line); border-radius:1.75rem; background:#fff; box-shadow:var(--ef-shadow); }
         .ef-receipt-main { padding:clamp(1.35rem,5vw,2.25rem); }
         .ef-receipt-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; padding-bottom:1.25rem; border-bottom:1px solid #e5e7eb; }

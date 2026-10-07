@@ -25,8 +25,6 @@ class PaymentReturn extends Page
         abort_unless($payment->user_id === auth()->id(), 404);
 
         $this->payment = $payment->load('course');
-
-        $this->confirmPayment($confirmPayment);
     }
 
     public function retryVerification(ConfirmCoursePayment $confirmPayment): void
@@ -41,8 +39,6 @@ class PaymentReturn extends Page
             $this->payment->refresh();
 
             if ($this->successful) {
-                $this->redirect(PracticeSetup::getUrl(['course' => $this->payment->course_id], panel: 'student'));
-
                 return;
             }
 
