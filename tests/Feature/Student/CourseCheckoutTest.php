@@ -139,10 +139,41 @@ class CourseCheckoutTest extends TestCase
 
         Livewire::actingAs($student)
             ->test(PaymentReturn::class, ['payment' => $payment])
-            ->assertSee('Payment not confirmed');
+            ->assertSee('Opening your course');
 
         $this->assertSame(PaymentStatus::Pending, $payment->fresh()->status);
         $this->assertDatabaseCount('course_access', 0);
+    }
+
+    public function test_payment_return_rechecks_and_redirects_when_paystack_confirms_payment_after_the_callback(): void
+    {
+        [$student, $course] = $this->eligibleReadyCourse();
+        $payment = Payment::factory()->for($student)->for($course)->create([
+            'amount' => '1500.00', 'currency' => 'NGN', 'reference' => 'EXAM-VERIFY-RETRY',
+        ]);
+        $this->mock(PaymentGateway::class, function (MockInterface $mock): void {
+            $mock->shouldReceive('verify')->twice()->with('EXAM-VERIFY-RETRY')->andReturn(
+                new PaymentVerification(false, 'EXAM-VERIFY-RETRY', 150000, 'NGN', [
+                    'data' => ['status' => 'pending'],
+                ]),
+                new PaymentVerification(true, 'EXAM-VERIFY-RETRY', 150000, 'NGN', [
+                    'data' => ['status' => 'success'],
+                ]),
+            );
+        });
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($student)
+            ->test(PaymentReturn::class, ['payment' => $payment])
+            ->call('retryVerification')
+            ->assertRedirect(PracticeSetup::getUrl(['course' => $course], panel: 'student'));
+
+        $this->assertSame(PaymentStatus::Successful, $payment->fresh()->status);
+        $this->assertDatabaseHas('course_access', [
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'payment_id' => $payment->id,
+        ]);
     }
 
     public function test_student_cannot_view_another_students_payment_return(): void

@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <x-student-ui />
 
-    <div class="ef-status-card">
+    <div class="ef-status-card" @if (! $successful) wire:poll.2s="retryVerification" @endif>
         @if ($successful)
             <div class="ef-status-icon ef-status-icon--success">✓</div>
             <p class="ef-eyebrow">Payment complete</p>
@@ -12,9 +12,9 @@
             </div>
         @else
             <div class="ef-status-icon ef-status-icon--pending">!</div>
-            <p class="ef-eyebrow">Verification pending</p>
-            <h1 class="ef-title">Payment not confirmed</h1>
-            <p class="ef-subtitle">If you were charged, please wait briefly. An administrator can also confirm a pending payment after checking it.</p>
+            <p class="ef-eyebrow">Confirming secure payment</p>
+            <h1 class="ef-title">Opening your course…</h1>
+            <p class="ef-subtitle">We are confirming your payment directly with Paystack. Your course will open automatically as soon as it is confirmed.</p>
             <div class="mt-6">
                 <x-filament::button tag="a" href="{{ \App\Filament\Student\Pages\AvailableCourses::getUrl(panel: 'student') }}" color="gray">Return to courses</x-filament::button>
             </div>
