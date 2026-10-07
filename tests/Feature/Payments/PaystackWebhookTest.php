@@ -13,7 +13,6 @@ use App\Payments\PaymentGateway;
 use App\Payments\PaymentVerification;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Queue;
 use Mockery\MockInterface;
 use RuntimeException;
 use Tests\TestCase;
@@ -22,59 +21,76 @@ class PaystackWebhookTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    public function test_valid_success_webhook_is_acknowledged_and_queued(): void
+    public function test_valid_success_webhook_immediately_grants_course_access(): void
     {
         config()->set('services.paystack.secret_key', 'webhook-secret');
-        Queue::fake([ProcessPaystackWebhook::class]);
-        $payload = ['event' => 'charge.success', 'data' => ['reference' => 'EXAM-WEBHOOK-001']];
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $payment = Payment::factory()->for($student)->for($course)->create([
+            'reference' => 'EXAM-WEBHOOK-001',
+            'amount' => '1500.00',
+            'currency' => 'NGN',
+        ]);
+        $this->mock(PaymentGateway::class, function (MockInterface $mock): void {
+            $mock->shouldNotReceive('verify');
+        });
+        $payload = [
+            'event' => 'charge.success',
+            'data' => [
+                'status' => 'success',
+                'reference' => 'EXAM-WEBHOOK-001',
+                'amount' => 150000,
+                'currency' => 'NGN',
+            ],
+        ];
 
         $response = $this->withHeader('x-paystack-signature', $this->signature($payload))
             ->postJson(route('webhooks.paystack'), $payload);
 
         $response->assertOk();
-        Queue::assertPushed(
-            ProcessPaystackWebhook::class,
-            fn (ProcessPaystackWebhook $job): bool => $job->reference === 'EXAM-WEBHOOK-001',
-        );
+        $this->assertSame(PaymentStatus::Successful, $payment->fresh()->status);
+        $this->assertDatabaseHas('course_access', [
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'payment_id' => $payment->id,
+            'is_active' => true,
+        ]);
     }
 
     public function test_invalid_signature_is_rejected_without_queuing_work(): void
     {
         config()->set('services.paystack.secret_key', 'webhook-secret');
-        Queue::fake([ProcessPaystackWebhook::class]);
         $payload = ['event' => 'charge.success', 'data' => ['reference' => 'EXAM-WEBHOOK-002']];
 
         $response = $this->withHeader('x-paystack-signature', 'invalid-signature')
             ->postJson(route('webhooks.paystack'), $payload);
 
         $response->assertUnauthorized();
-        Queue::assertNotPushed(ProcessPaystackWebhook::class);
+        $this->assertDatabaseCount('course_access', 0);
     }
 
     public function test_webhook_returns_service_unavailable_when_paystack_is_not_configured(): void
     {
         config()->set('services.paystack.secret_key');
-        Queue::fake([ProcessPaystackWebhook::class]);
 
         $this->postJson(route('webhooks.paystack'), [
             'event' => 'charge.success',
             'data' => ['reference' => 'EXAM-WEBHOOK-NOT-CONFIGURED'],
         ])->assertServiceUnavailable();
 
-        Queue::assertNotPushed(ProcessPaystackWebhook::class);
+        $this->assertDatabaseCount('course_access', 0);
     }
 
     public function test_unrelated_event_is_acknowledged_without_queuing_work(): void
     {
         config()->set('services.paystack.secret_key', 'webhook-secret');
-        Queue::fake([ProcessPaystackWebhook::class]);
         $payload = ['event' => 'subscription.create', 'data' => ['reference' => 'EXAM-WEBHOOK-003']];
 
         $response = $this->withHeader('x-paystack-signature', $this->signature($payload))
             ->postJson(route('webhooks.paystack'), $payload);
 
         $response->assertOk();
-        Queue::assertNotPushed(ProcessPaystackWebhook::class);
+        $this->assertDatabaseCount('course_access', 0);
     }
 
     public function test_webhook_job_reverifies_payment_and_grants_access(): void

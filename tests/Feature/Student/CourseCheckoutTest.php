@@ -159,7 +159,6 @@ class CourseCheckoutTest extends TestCase
 
         Livewire::actingAs($student)
             ->test(PaymentReturn::class, ['payment' => $payment])
-            ->call('retryVerification')
             ->assertSee('Verifying your payment');
 
         $this->assertSame(PaymentStatus::Pending, $payment->fresh()->status);

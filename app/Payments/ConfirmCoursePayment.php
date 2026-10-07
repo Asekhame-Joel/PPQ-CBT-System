@@ -16,18 +16,40 @@ class ConfirmCoursePayment
 
     public function handle(Payment $payment): bool
     {
+        $payment->refresh();
+
         if ($payment->status === PaymentStatus::Successful) {
+            $this->syncPaymentCourseAccess->handle($payment);
+
             return true;
         }
 
         $verification = $this->gateway->verify($payment->reference);
-        $expectedAmount = (int) round((float) $payment->amount * 100);
 
         if (! $verification->successful) {
             $payment->update(['provider_response' => $verification->response]);
 
             return false;
         }
+
+        return $this->handleVerified($payment, $verification);
+    }
+
+    public function handleVerified(Payment $payment, PaymentVerification $verification): bool
+    {
+        $payment->refresh();
+
+        if ($payment->status === PaymentStatus::Successful) {
+            $this->syncPaymentCourseAccess->handle($payment);
+
+            return true;
+        }
+
+        if (! $verification->successful) {
+            return false;
+        }
+
+        $expectedAmount = (int) round((float) $payment->amount * 100);
 
         if ($verification->reference !== $payment->reference
             || $verification->amount !== $expectedAmount
