@@ -165,6 +165,64 @@ class CourseCheckoutTest extends TestCase
         $this->assertDatabaseCount('course_access', 0);
     }
 
+    public function test_customer_paid_paystack_fee_still_grants_access_for_the_full_requested_course_amount(): void
+    {
+        [$student, $course] = $this->eligibleReadyCourse();
+        $payment = Payment::factory()->for($student)->for($course)->create([
+            'amount' => '1500.00', 'currency' => 'NGN', 'reference' => 'EXAM-VERIFY-FEE',
+        ]);
+        $this->mock(PaymentGateway::class, function (MockInterface $mock): void {
+            $mock->shouldReceive('verify')->once()->with('EXAM-VERIFY-FEE')
+                ->andReturn(new PaymentVerification(
+                    successful: true,
+                    reference: 'EXAM-VERIFY-FEE',
+                    amount: 155000,
+                    currency: 'NGN',
+                    response: ['data' => ['status' => 'success', 'requested_amount' => 150000]],
+                    requestedAmount: 150000,
+                ));
+        });
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($student)
+            ->test(PaymentReturn::class, ['payment' => $payment])
+            ->assertSee('Payment confirmed');
+
+        $this->assertSame(PaymentStatus::Successful, $payment->fresh()->status);
+        $this->assertDatabaseHas('course_access', [
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'payment_id' => $payment->id,
+        ]);
+    }
+
+    public function test_customer_fee_handling_does_not_accept_a_partial_payment(): void
+    {
+        [$student, $course] = $this->eligibleReadyCourse();
+        $payment = Payment::factory()->for($student)->for($course)->create([
+            'amount' => '1500.00', 'currency' => 'NGN', 'reference' => 'EXAM-VERIFY-PARTIAL',
+        ]);
+        $this->mock(PaymentGateway::class, function (MockInterface $mock): void {
+            $mock->shouldReceive('verify')->once()->with('EXAM-VERIFY-PARTIAL')
+                ->andReturn(new PaymentVerification(
+                    successful: true,
+                    reference: 'EXAM-VERIFY-PARTIAL',
+                    amount: 100000,
+                    currency: 'NGN',
+                    response: ['data' => ['status' => 'success', 'requested_amount' => 150000]],
+                    requestedAmount: 150000,
+                ));
+        });
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($student)
+            ->test(PaymentReturn::class, ['payment' => $payment])
+            ->assertSee('Verifying your payment');
+
+        $this->assertSame(PaymentStatus::Pending, $payment->fresh()->status);
+        $this->assertDatabaseCount('course_access', 0);
+    }
+
     public function test_payment_return_rechecks_and_redirects_when_paystack_confirms_payment_after_the_callback(): void
     {
         [$student, $course] = $this->eligibleReadyCourse();

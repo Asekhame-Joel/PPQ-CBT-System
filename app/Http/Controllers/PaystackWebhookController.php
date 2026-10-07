@@ -53,6 +53,9 @@ class PaystackWebhookController extends Controller
             amount: $request->integer('data.amount'),
             currency: $request->string('data.currency')->toString(),
             response: $request->all(),
+            requestedAmount: $request->has('data.requested_amount')
+                ? $request->integer('data.requested_amount')
+                : null,
         );
 
         try {

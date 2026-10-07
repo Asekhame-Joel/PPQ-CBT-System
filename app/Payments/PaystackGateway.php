@@ -50,6 +50,9 @@ class PaystackGateway implements PaymentGateway
             amount: (int) data_get($response, 'data.amount', 0),
             currency: (string) data_get($response, 'data.currency', ''),
             response: $response,
+            requestedAmount: is_numeric(data_get($response, 'data.requested_amount'))
+                ? (int) data_get($response, 'data.requested_amount')
+                : null,
         );
     }
 

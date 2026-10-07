@@ -39,7 +39,8 @@ class PaystackWebhookTest extends TestCase
             'data' => [
                 'status' => 'success',
                 'reference' => 'EXAM-WEBHOOK-001',
-                'amount' => 150000,
+                'amount' => 155000,
+                'requested_amount' => 150000,
                 'currency' => 'NGN',
             ],
         ];

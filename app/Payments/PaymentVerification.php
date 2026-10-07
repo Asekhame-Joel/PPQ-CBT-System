@@ -11,5 +11,6 @@ class PaymentVerification
         public readonly int $amount,
         public readonly string $currency,
         public readonly array $response,
+        public readonly ?int $requestedAmount = null,
     ) {}
 }

@@ -57,6 +57,7 @@ class PaystackGatewayTest extends TestCase
                     'status' => 'success',
                     'reference' => 'EXAM-PAYSTACK-002',
                     'amount' => 250000,
+                    'requested_amount' => 240000,
                     'currency' => 'NGN',
                 ],
             ]),
@@ -67,6 +68,7 @@ class PaystackGatewayTest extends TestCase
         $this->assertTrue($result->successful);
         $this->assertSame('EXAM-PAYSTACK-002', $result->reference);
         $this->assertSame(250000, $result->amount);
+        $this->assertSame(240000, $result->requestedAmount);
         $this->assertSame('NGN', $result->currency);
     }
 

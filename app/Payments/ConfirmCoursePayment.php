@@ -50,9 +50,12 @@ class ConfirmCoursePayment
         }
 
         $expectedAmount = (int) round((float) $payment->amount * 100);
+        $amountMatches = $verification->amount === $expectedAmount
+            || ($verification->requestedAmount === $expectedAmount
+                && $verification->amount >= $expectedAmount);
 
         if ($verification->reference !== $payment->reference
-            || $verification->amount !== $expectedAmount
+            || ! $amountMatches
             || $verification->currency !== $payment->currency) {
             $payment->update(['provider_response' => $verification->response]);
 
