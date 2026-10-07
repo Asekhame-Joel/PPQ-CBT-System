@@ -78,12 +78,12 @@ class AvailableCoursesTest extends TestCase
             ->assertSee('Not available yet');
     }
 
-    public function test_catalogue_uses_the_administrator_question_count_when_one_is_set(): void
+    public function test_catalogue_uses_the_administrator_question_bank_label_when_one_is_set(): void
     {
         $student = User::factory()->create();
         $course = Course::factory()->create([
             'code' => 'NCP1',
-            'display_question_count' => 300,
+            'display_question_count' => 'Over 1,000 Questions uploaded in this bank',
             'level_id' => $student->level_id,
             'min_question_count' => 2,
         ]);
@@ -93,7 +93,7 @@ class AvailableCoursesTest extends TestCase
 
         Livewire::actingAs($student)
             ->test(AvailableCourses::class)
-            ->assertSee('300 questions')
+            ->assertSee('Over 1,000 Questions uploaded in this bank')
             ->assertDontSee('2 questions');
     }
 

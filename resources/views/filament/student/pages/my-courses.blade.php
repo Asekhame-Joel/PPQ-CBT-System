@@ -12,7 +12,7 @@
             @php
                 $course = $access->course;
                 $canPractice = $course->questions_count >= $course->min_question_count;
-                $displayQuestionCount = $course->display_question_count ?? $course->questions_count;
+                $displayQuestionLabel = $course->display_question_count ?? number_format($course->questions_count).' questions';
             @endphp
 
             <article class="ef-card">
@@ -25,7 +25,7 @@
                 <p class="ef-description">{{ filled($course->description) ? $course->description : 'Your unlocked past-question practice course.' }}</p>
                 <div class="ef-details">
                     @if ($course->level)<span>{{ $course->level->name }}</span>@endif
-                    <span>{{ number_format($displayQuestionCount) }} questions</span>
+                    <span>{{ $displayQuestionLabel }}</span>
                     <span>{{ $access->expires_at ? 'Until '.$access->expires_at->toFormattedDateString() : 'No expiry' }}</span>
                 </div>
 

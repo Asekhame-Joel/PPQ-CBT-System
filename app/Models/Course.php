@@ -102,7 +102,6 @@ class Course extends Model
             'default_duration' => 'integer',
             'min_question_count' => 'integer',
             'max_question_count' => 'integer',
-            'display_question_count' => 'integer',
             'min_duration' => 'integer',
             'max_duration' => 'integer',
             'is_active' => 'boolean',

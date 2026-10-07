@@ -74,11 +74,9 @@ class CourseForm
                         Grid::make(3)
                             ->schema([
                                 TextInput::make('display_question_count')
-                                    ->label('Questions shown to students')
-                                    ->helperText('Optional. This controls the number displayed on the course card; practice still uses the active question bank.')
-                                    ->integer()
-                                    ->minValue(1)
-                                    ->maxValue(65535),
+                                    ->label('Question-bank label shown to students')
+                                    ->helperText('Optional. Example: “Over 1,000 Questions uploaded in this bank”. Practice still uses the active question bank.')
+                                    ->maxLength(120),
                                 TextInput::make('min_question_count')
                                     ->label('Minimum questions')
                                     ->required()

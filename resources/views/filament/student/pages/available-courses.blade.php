@@ -10,7 +10,7 @@
     <div class="ef-grid">
         @forelse ($this->courses as $course)
             @php($hasEnoughQuestions = $course->questions_count >= $course->min_question_count)
-            @php($displayQuestionCount = $course->display_question_count ?? $course->questions_count)
+            @php($displayQuestionLabel = $course->display_question_count ?? number_format($course->questions_count).' questions')
 
             <article class="ef-card">
                 <div class="ef-card-top">
@@ -22,11 +22,11 @@
 
                 <h2 class="ef-course-name">{{ $course->name }}</h2>
                 <p class="ef-description">
-                    {{ filled($course->description) ? $course->description : number_format($displayQuestionCount).' past questions ready for practice.' }}
+                    {{ filled($course->description) ? $course->description : $displayQuestionLabel.' ready for practice.' }}
                 </p>
                 <div class="ef-details">
                     <span>{{ $course->level?->name ?? 'General' }}</span>
-                    <span>{{ number_format($displayQuestionCount) }} questions</span>
+                    <span>{{ $displayQuestionLabel }}</span>
                 </div>
 
                 <div class="ef-card-footer">

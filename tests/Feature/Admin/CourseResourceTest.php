@@ -63,7 +63,7 @@ class CourseResourceTest extends TestCase
 
         $this->assertSame('Introduction to Computing', $course->name);
         $this->assertSame('1000.00', $course->price);
-        $this->assertSame(300, $course->display_question_count);
+        $this->assertSame('Over 1,000 Questions uploaded in this bank', $course->display_question_count);
         $this->assertTrue($course->level->is($level));
         $this->assertTrue($course->levels->contains($level));
         $this->assertEqualsCanonicalizing($departments->modelKeys(), $course->departments->modelKeys());
@@ -171,7 +171,7 @@ class CourseResourceTest extends TestCase
             'min_question_count' => 10,
             'default_question_count' => 50,
             'max_question_count' => 100,
-            'display_question_count' => 300,
+            'display_question_count' => 'Over 1,000 Questions uploaded in this bank',
             'min_duration' => 10,
             'default_duration' => 30,
             'max_duration' => 120,
