@@ -73,13 +73,13 @@ class CourseCheckoutTest extends TestCase
         $this->assertDatabaseCount('payments', 0);
     }
 
-    public function test_student_reuses_a_recent_pending_paystack_checkout_instead_of_creating_a_duplicate(): void
+    public function test_student_reuses_an_existing_pending_paystack_checkout_instead_of_creating_a_duplicate(): void
     {
         [$student, $course] = $this->eligibleReadyCourse();
         $payment = Payment::factory()->for($student)->for($course)->create([
             'status' => PaymentStatus::Pending,
             'provider_response' => ['data' => ['authorization_url' => 'https://checkout.paystack.com/continue-payment']],
-            'created_at' => now()->subMinutes(10),
+            'created_at' => now()->subDays(2),
         ]);
         $this->mock(PaymentGateway::class, function (MockInterface $mock): void {
             $mock->shouldNotReceive('initialize');
@@ -93,6 +93,26 @@ class CourseCheckoutTest extends TestCase
 
         $this->assertDatabaseCount('payments', 1);
         $this->assertSame($payment->id, Payment::query()->sole()->id);
+    }
+
+    public function test_student_cannot_create_another_payment_when_an_existing_pending_payment_has_no_checkout_url(): void
+    {
+        [$student, $course] = $this->eligibleReadyCourse();
+        Payment::factory()->for($student)->for($course)->create([
+            'status' => PaymentStatus::Pending,
+            'provider_response' => null,
+        ]);
+        $this->mock(PaymentGateway::class, function (MockInterface $mock): void {
+            $mock->shouldNotReceive('initialize');
+        });
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($student)
+            ->test(Checkout::class, ['course' => $course])
+            ->call('pay')
+            ->assertHasErrors(['course']);
+
+        $this->assertDatabaseCount('payments', 1);
     }
 
     public function test_verified_payment_grants_course_access(): void

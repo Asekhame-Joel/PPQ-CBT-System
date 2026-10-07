@@ -45,13 +45,18 @@ class InitiateCoursePayment
             ->where('user_id', $student->id)
             ->where('course_id', $course->id)
             ->where('status', PaymentStatus::Pending)
-            ->where('created_at', '>', now()->subMinutes(30))
             ->latest('id')
             ->first();
         $existingAuthorizationUrl = data_get($existingPayment?->provider_response, 'data.authorization_url');
 
-        if (is_string($existingAuthorizationUrl) && $this->isPaystackCheckoutUrl($existingAuthorizationUrl)) {
-            return new PaymentInitialization($existingAuthorizationUrl, $existingPayment->provider_response ?? []);
+        if ($existingPayment) {
+            if (is_string($existingAuthorizationUrl) && $this->isPaystackCheckoutUrl($existingAuthorizationUrl)) {
+                return new PaymentInitialization($existingAuthorizationUrl, $existingPayment->provider_response ?? []);
+            }
+
+            throw ValidationException::withMessages([
+                'course' => 'A payment for this course is already pending confirmation. Please wait for it to complete or contact support.',
+            ]);
         }
 
         $this->rateLimiter->ensure($student, 'start-payment', maximumAttempts: 3, decaySeconds: 600);

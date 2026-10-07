@@ -56,6 +56,15 @@ class PaymentHistory extends Page implements HasTable
                     }),
             ])
             ->recordActions([
+                Action::make('checkPaymentStatus')
+                    ->label('Check payment status')
+                    ->icon(Heroicon::OutlinedArrowPath)
+                    ->color('warning')
+                    ->url(fn (Payment $record): string => PaymentReturn::getUrl(
+                        ['payment' => $record],
+                        panel: 'student',
+                    ))
+                    ->visible(fn (Payment $record): bool => $record->status === PaymentStatus::Pending),
                 Action::make('receipt')
                     ->label('Receipt')
                     ->icon(Heroicon::OutlinedDocumentText)

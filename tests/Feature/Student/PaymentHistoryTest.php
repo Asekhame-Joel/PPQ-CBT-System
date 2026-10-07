@@ -4,6 +4,7 @@ namespace Tests\Feature\Student;
 
 use App\Filament\Student\Pages\PaymentHistory;
 use App\Filament\Student\Pages\PaymentReceipt;
+use App\Filament\Student\Pages\PaymentReturn;
 use App\Models\Payment;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -44,6 +45,21 @@ class PaymentHistoryTest extends TestCase
             ->assertSee('EXAM-RECEIPT-001')
             ->assertSee('2,500.00')
             ->assertSee('Print receipt');
+    }
+
+    public function test_student_can_recheck_a_pending_payment_with_paystack(): void
+    {
+        $student = User::factory()->create();
+        $payment = Payment::factory()->for($student)->create();
+        Filament::setCurrentPanel(Filament::getPanel('student'));
+
+        Livewire::actingAs($student)
+            ->test(PaymentHistory::class)
+            ->assertTableActionHasUrl(
+                'checkPaymentStatus',
+                PaymentReturn::getUrl(['payment' => $payment], panel: 'student'),
+                $payment,
+            );
     }
 
     public function test_student_cannot_view_a_receipt_for_a_pending_payment(): void
