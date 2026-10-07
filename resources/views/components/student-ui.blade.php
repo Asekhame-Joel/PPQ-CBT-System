@@ -100,8 +100,6 @@
         .ef-setup-course-mark { display:grid; width:3.25rem; height:3.25rem; place-items:center; border-radius:1rem; color:#fff; background:linear-gradient(135deg,#2563eb,#4f46e5); font-weight:850; }
         .ef-setup-course-copy { display:grid; gap:.15rem; } .ef-setup-course-copy span { color:#2563eb; font-size:.7rem; font-weight:850; letter-spacing:.06em; }
         .ef-setup-course-copy strong { color:#172554; font-size:1.05rem; } .ef-setup-course-copy small { color:#64748b; font-size:.76rem; }
-        .ef-setup-available { min-width:8rem; padding:.65rem .85rem; border-radius:.9rem; color:#166534; background:#ecfdf3; text-align:center; }
-        .ef-setup-available strong,.ef-setup-available span { display:block; } .ef-setup-available strong { font-size:1.15rem; } .ef-setup-available span { font-size:.68rem; }
         .ef-setup-form { display:grid; gap:1rem; } .ef-setup-actions { display:flex; flex-wrap:wrap; gap:.65rem; }
         .ef-result-summary { overflow:hidden; border:1px solid #e3e8f5; border-radius:1.4rem; background:#fff; box-shadow:0 18px 45px -32px rgba(30,41,99,.42); }
         .ef-result-overview { display:flex; align-items:center; justify-content:space-between; gap:1.5rem; padding:1.4rem; background:linear-gradient(120deg,#f8fbff,#eef4ff); }
@@ -172,6 +170,6 @@
         @media (min-width:1024px) { .ef-exam-shell { grid-template-columns:minmax(0,1fr) 18rem; } .ef-exam-sidebar { position:sticky; top:5.5rem; } .ef-help-grid { grid-template-columns:minmax(0,1fr) 18rem; } }
         @media (max-width:639px) { .ef-exam-status { align-items:stretch; flex-direction:column; } .ef-exam-clock { width:100%; } .ef-question-card { padding:1rem; } .ef-exam-shell .ef-answer-option { grid-template-columns:2.2rem minmax(0,1fr) 1.35rem; padding:.75rem; } .ef-answer-letter { width:2.1rem; height:2.1rem; } .ef-recent-result { gap:.75rem; padding:.85rem; } .ef-recent-review { display:none; } .ef-submit-dialog-actions { flex-direction:column-reverse; } .ef-help-request { align-items:stretch; flex-direction:column; } .ef-help-status { width:max-content; } }
         @media (max-width:520px) { .ef-card-footer { align-items:stretch; flex-direction:column; } .ef-card-footer .fi-btn { width:100%; } }
-        @media (max-width:639px) { .ef-setup-course { grid-template-columns:auto 1fr; } .ef-setup-available { grid-column:1/-1; } .ef-setup-actions { display:grid; } .ef-setup-actions .fi-btn { width:100%; } .ef-result-overview { align-items:flex-start; flex-direction:column; } .ef-result-score-wrap { width:100%; justify-content:space-between; } .ef-result-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .ef-review-option { grid-template-columns:2rem minmax(0,1fr); } .ef-review-note { grid-column:2; } }
+        @media (max-width:639px) { .ef-setup-course { grid-template-columns:auto 1fr; } .ef-setup-actions { display:grid; } .ef-setup-actions .fi-btn { width:100%; } .ef-result-overview { align-items:flex-start; flex-direction:column; } .ef-result-score-wrap { width:100%; justify-content:space-between; } .ef-result-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .ef-review-option { grid-template-columns:2rem minmax(0,1fr); } .ef-review-note { grid-column:2; } }
     </style>
 @endonce

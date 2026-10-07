@@ -15,7 +15,6 @@
             <strong>{{ $course->name }}</strong>
             <small>This course is unlocked and ready for practice.</small>
         </div>
-        <div class="ef-setup-available"><strong>{{ number_format($availableQuestionCount) }}</strong><span>{{ number_format($availableQuestionCount) }} questions available</span></div>
     </section>
 
     <form wire:submit="startPractice" class="ef-setup-form">

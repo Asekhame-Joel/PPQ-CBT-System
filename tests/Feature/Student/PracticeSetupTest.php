@@ -34,7 +34,6 @@ class PracticeSetupTest extends TestCase
         Livewire::actingAs($student)
             ->test(PracticeSetup::class, ['course' => $course])
             ->assertSee('Practice CSC101')
-            ->assertSee('20 questions available')
             ->assertFormSet([
                 'question_count' => 20,
                 'duration_minutes' => 30,
