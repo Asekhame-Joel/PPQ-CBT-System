@@ -6,6 +6,7 @@ use App\Filament\Student\Pages\Auth\Login;
 use App\Filament\Student\Pages\Auth\Register;
 use App\Filament\Student\Pages\Dashboard;
 use App\Http\Middleware\AuthenticateStudentPanel;
+use App\Http\Middleware\TrackStudentDevice;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -69,6 +70,7 @@ class StudentPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 AuthenticateStudentPanel::class,
+                TrackStudentDevice::class,
             ]);
     }
 }

@@ -43,6 +43,10 @@ class StudentsTable
                     ->label('Course access')
                     ->counts('courseAccesses')
                     ->badge(),
+                TextColumn::make('active_devices_count')
+                    ->label('Signed-in devices')
+                    ->badge()
+                    ->color(fn (int $state): string => $state >= 2 ? 'warning' : 'info'),
                 IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean()

@@ -7,6 +7,7 @@ use App\Filament\Resources\Students\Pages\CreateStudent;
 use App\Filament\Resources\Students\Pages\EditStudent;
 use App\Filament\Resources\Students\Pages\ListStudents;
 use App\Filament\Resources\Students\RelationManagers\CourseAccessesRelationManager;
+use App\Filament\Resources\Students\RelationManagers\DeviceSessionsRelationManager;
 use App\Filament\Resources\Students\Schemas\StudentForm;
 use App\Filament\Resources\Students\Tables\StudentsTable;
 use App\Models\User;
@@ -43,6 +44,7 @@ class StudentResource extends Resource
     {
         return [
             CourseAccessesRelationManager::class,
+            DeviceSessionsRelationManager::class,
         ];
     }
 
@@ -57,6 +59,10 @@ class StudentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('role', UserRole::Student);
+        return parent::getEloquentQuery()
+            ->where('role', UserRole::Student)
+            ->withCount([
+                'deviceSessions as active_devices_count' => fn (Builder $query): Builder => $query->active(),
+            ]);
     }
 }

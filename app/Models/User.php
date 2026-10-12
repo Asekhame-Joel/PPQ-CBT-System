@@ -60,6 +60,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(StudentSetting::class);
     }
 
+    public function deviceSessions(): HasMany
+    {
+        return $this->hasMany(DeviceSession::class);
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
